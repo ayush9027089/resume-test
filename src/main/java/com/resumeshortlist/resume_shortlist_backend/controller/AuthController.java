@@ -1,5 +1,6 @@
 package com.resumeshortlist.resume_shortlist_backend.controller;
 
+import com.resumeshortlist.resume_shortlist_backend.dto.AuthResponse;
 import com.resumeshortlist.resume_shortlist_backend.dto.LoginRequest;
 import com.resumeshortlist.resume_shortlist_backend.dto.RegisterRequest;
 import com.resumeshortlist.resume_shortlist_backend.service.AuthService;
@@ -12,6 +13,11 @@ import org.springframework.web.bind.annotation.*;
 public class AuthController {
 
     @Autowired private AuthService authService;
+
+    @GetMapping("/test")
+    public String testApi() {
+        return "Auth API is working fine!";
+    }
 
     @PostMapping("/register")
     public ResponseEntity<?> register(@RequestBody RegisterRequest request) {
@@ -33,7 +39,4 @@ public class AuthController {
         }
     }
 }
-
-// Response DTO
-record AuthResponse(String token) {}
 

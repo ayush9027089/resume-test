@@ -9,17 +9,17 @@ import org.springframework.web.multipart.MultipartFile;
 import java.util.List;
 
 @RestController
-@RequestMapping("/api/resumes")
-@CrossOrigin
+@RequestMapping("/api/resumes/upload")
+//@CrossOrigin
 @RequiredArgsConstructor
 public class ResumeController {
 
     private final FileUploadService FileUploadService;
 
     // 🎯 API #7 Upload Multiple Resumes
-    @PostMapping("/upload")
+    @PostMapping("/{userId}")
     public ResponseEntity<?> uploadResumes(
-            @RequestParam Long userId,
+            @PathVariable Long userId,
             @RequestPart("files") MultipartFile[] files) {
         try {
             List<Resume> saved = FileUploadService.uploadMultipleResumes(userId, files);

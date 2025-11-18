@@ -21,6 +21,8 @@ public class SecurityConfig {
                 .sessionManagement(session -> session.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
                 .authorizeHttpRequests(auth -> auth
                         .requestMatchers("/api/auth/**").permitAll()
+                        .requestMatchers("/api/resumes/upload/**").permitAll()
+                        .requestMatchers("/api/job-postings/**").permitAll()
                         .anyRequest().authenticated()
                 );
 
