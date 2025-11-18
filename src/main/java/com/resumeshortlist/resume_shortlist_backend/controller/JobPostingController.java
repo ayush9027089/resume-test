@@ -3,6 +3,7 @@ package com.resumeshortlist.resume_shortlist_backend.controller;
 import com.resumeshortlist.resume_shortlist_backend.entity.JobPosting;
 import com.resumeshortlist.resume_shortlist_backend.service.JobPostingService;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
@@ -25,6 +26,20 @@ public class JobPostingController {
     public List<JobPosting> getAllJobPostings() {
         return jobPostingService.getAllJobPostings();
     }
+
+    // 🎯 API #5: Get single job by ID
+    @GetMapping("/{id}")
+    public ResponseEntity<JobPosting> getJobById(@PathVariable Long id) {
+        return ResponseEntity.ok(jobPostingService.getJobById(id));
+    }
+
+    // 🎯 API #6: Delete job by ID
+    @DeleteMapping("/{id}")
+    public ResponseEntity<String> deleteJobById(@PathVariable Long id) {
+        return ResponseEntity.ok(jobPostingService.deleteJobById(id));
+    }
+
+
 
 }
 

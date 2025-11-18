@@ -1,38 +1,37 @@
 package com.resumeshortlist.resume_shortlist_backend.controller;
 
 import com.resumeshortlist.resume_shortlist_backend.entity.Resume;
-import com.resumeshortlist.resume_shortlist_backend.entity.User;
 import com.resumeshortlist.resume_shortlist_backend.service.FileUploadService;
+import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
-
-import java.io.IOException;
+import java.util.List;
 
 @RestController
-@RequestMapping("/api/resumes")
+@RequestMapping("/api/resumes/upload")
+//@CrossOrigin
+@RequiredArgsConstructor
 public class ResumeController {
 
-    private final FileUploadService fileUploadService;
+    private final FileUploadService FileUploadService;
 
-    public ResumeController(FileUploadService fileUploadService) {
-        this.fileUploadService = fileUploadService;
+    // 🎯 API #7 Upload Multiple Resumes
+    @PostMapping("/{userId}")
+    public ResponseEntity<?> uploadResumes(
+            @PathVariable Long userId,
+            @RequestPart("files") MultipartFile[] files) {
+        try {
+            List<Resume> saved = FileUploadService.uploadMultipleResumes(userId, files);
+            return ResponseEntity.ok(saved);
+        } catch (Exception e) {
+            return ResponseEntity.status(500).body("Upload failed: " + e.getMessage());
+        }
     }
 
-    @PostMapping("/upload")
-    public ResponseEntity<String> uploadResume(
-            @RequestParam("file") MultipartFile file,
-            @RequestParam("userId") Long userId) {  // Temp: pass user ID
-
-        try {
-            User mockUser = new User();
-            mockUser.setId(userId);
-
-            Resume saved = fileUploadService.uploadResume(file, mockUser);
-            return ResponseEntity.ok("Resume uploaded! ID: " + saved.getId() +
-                    "\nText length: " + saved.getFilePath());
-        } catch (IOException e) {
-            return ResponseEntity.badRequest().body("Upload failed: " + e.getMessage());
-        }
+    // 🎯 API #8 Get All Resumes Uploaded by Specific User
+    @GetMapping("/{userId}")
+    public ResponseEntity<List<Resume>> getResumesByUser(@PathVariable Long userId) {
+        return ResponseEntity.ok(FileUploadService.getAllResumesByUser(userId));
     }
 }

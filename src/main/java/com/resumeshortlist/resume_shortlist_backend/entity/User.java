@@ -1,14 +1,14 @@
 package com.resumeshortlist.resume_shortlist_backend.entity;
 
 import jakarta.persistence.*;
-import lombok.Data;
-import lombok.NoArgsConstructor;
+import lombok.*;
 import java.time.LocalDateTime;
 
 @Entity
 @Table(name = "users")
 @Data
 @NoArgsConstructor
+@AllArgsConstructor
 public class User {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -24,7 +24,7 @@ public class User {
     private String name;
 
     @Column(nullable = false)
-    private String role; // e.g., "RECRUITER", "ADMIN"
+    private String role = "RECRUITER"; // e.g., "RECRUITER", "ADMIN"
 
     @Column(updatable = false)
     private LocalDateTime createdAt = LocalDateTime.now();

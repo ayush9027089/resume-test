@@ -29,5 +29,20 @@ public class JobPostingService {
         return jobPostingRepository.findAll();
     }
 
+
+    public JobPosting getJobById(Long id) {
+        return jobPostingRepository.findById(id)
+                .orElseThrow(() -> new RuntimeException("Job Posting not found with id: " + id));
+    }
+
+    // DELETE job posting by ID
+    public String deleteJobById(Long id) {
+        if (!jobPostingRepository.existsById(id)) {
+            throw new RuntimeException("Cannot delete. Job Posting not found with id: " + id);
+        }
+        jobPostingRepository.deleteById(id);
+        return "Job Posting deleted successfully.";
+    }
+
 }
 

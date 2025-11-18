@@ -1,4 +1,5 @@
 package com.resumeshortlist.resume_shortlist_backend.dto;
 
-public class LoginRequest {
+public record LoginRequest (String email,
+                            String password) {
 }
