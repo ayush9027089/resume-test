@@ -13,10 +13,17 @@ import java.util.Optional;
 @Repository
 public interface CandidateRepository extends JpaRepository<Candidate, Long> {
     Optional<Candidate> findByResume(Resume resume);
+
     Optional<Candidate> findByEmail(String email);
+
     List<Candidate> findByNameContainingIgnoreCase(String name);
 
-    @Query("SELECT c FROM Candidate c JOIN Resume r ON c.resumeId = r.id " +
-            "JOIN JobApplication ja ON r.id = ja.resumeId WHERE ja.jobId = :jobId")
+    @Query(
+            value = "SELECT c.* FROM candidate c " +
+                    "JOIN resume r ON c.resume_id = r.id " +
+                    "JOIN job_application ja ON r.id = ja.resume_id " +
+                    "WHERE ja.job_id = :jobId",
+            nativeQuery = true
+    )
     List<Candidate> findByJobId(@Param("jobId") Long jobId);
 }

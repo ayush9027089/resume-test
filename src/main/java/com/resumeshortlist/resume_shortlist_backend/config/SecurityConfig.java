@@ -23,6 +23,8 @@ public class SecurityConfig {
                         .requestMatchers("/api/auth/**").permitAll()
                         .requestMatchers("/api/resumes/upload/**").permitAll()
                         .requestMatchers("/api/job-postings/**").permitAll()
+                        .requestMatchers("/api/**").permitAll()
+
                         .anyRequest().authenticated()
                 );
 
