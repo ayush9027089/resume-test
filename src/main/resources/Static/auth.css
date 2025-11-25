@@ -1,0 +1,152 @@
+/* Auth Forms Styling */
+
+/* Popup Styles */
+.overlay {
+    display: none;
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background-color: rgba(0, 0, 0, 0.7);
+    z-index: 999;
+    backdrop-filter: blur(3px);
+}
+
+.popup {
+    display: none;
+    position: fixed;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    background: #fff;
+    padding: 30px;
+    border-radius: 10px;
+    box-shadow: 0 5px 30px rgba(0, 0, 0, 0.3);
+    z-index: 1000;
+    width: 100%;
+    max-width: 400px;
+    animation: fadeIn 0.3s ease-in-out;
+}
+
+.popup h2 {
+    margin-top: 0;
+    color: #2c3e50;
+    text-align: center;
+    margin-bottom: 25px;
+}
+
+.popup .close {
+    position: absolute;
+    top: 15px;
+    right: 20px;
+    font-size: 24px;
+    font-weight: bold;
+    color: #7f8c8d;
+    cursor: pointer;
+    transition: color 0.3s ease;
+}
+
+.popup .close:hover {
+    color: #e74c3c;
+}
+
+/* Form Styles */
+.popup input[type="text"],
+.popup input[type="email"],
+.popup input[type="password"] {
+    width: 100%;
+    padding: 12px 15px;
+    margin-bottom: 15px;
+    border: 1px solid #ddd;
+    border-radius: 5px;
+    font-size: 16px;
+    transition: all 0.3s ease;
+    box-sizing: border-box;
+}
+
+.popup input[type="text"]:focus,
+.popup input[type="email"]:focus,
+.popup input[type="password"]:focus {
+    border-color: #3498db;
+    box-shadow: 0 0 0 2px rgba(52, 152, 219, 0.2);
+    outline: none;
+}
+
+.popup .btn {
+    width: 100%;
+    padding: 12px;
+    background-color: #3498db;
+    color: white;
+    border: none;
+    border-radius: 5px;
+    font-size: 16px;
+    font-weight: 600;
+    cursor: pointer;
+    transition: background-color 0.3s ease;
+    margin-top: 10px;
+}
+
+.popup .btn:hover {
+    background-color: #2980b9;
+}
+
+.popup .btn:disabled {
+    background-color: #bdc3c7;
+    cursor: not-allowed;
+}
+
+/* Message Styles */
+.message {
+    margin: 10px 0;
+    padding: 10px;
+    border-radius: 5px;
+    text-align: center;
+    font-size: 14px;
+    display: none;
+}
+
+/* Switch Link Styles */
+.switch-link {
+    color: #3498db;
+    text-decoration: none;
+    font-weight: 600;
+    transition: color 0.3s ease;
+}
+
+.switch-link:hover {
+    color: #2980b9;
+    text-decoration: underline;
+}
+
+/* Subtitle */
+.sub-title {
+    text-align: center;
+    color: #7f8c8d;
+    margin-top: -15px;
+    margin-bottom: 25px;
+}
+
+/* Animations */
+@keyframes fadeIn {
+    from {
+        opacity: 0;
+        transform: translate(-50%, -60%);
+    }
+    to {
+        opacity: 1;
+        transform: translate(-50%, -50%);
+    }
+}
+
+/* Responsive Design */
+@media (max-width: 576px) {
+    .popup {
+        width: 90%;
+        padding: 20px;
+    }
+    
+    .popup h2 {
+        font-size: 22px;
+    }
+}

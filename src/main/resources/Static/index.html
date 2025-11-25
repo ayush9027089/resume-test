@@ -1,566 +1,369 @@
-<!doctype html>
+<!DOCTYPE html>
 <html lang="en">
 <head>
-    <meta charset="utf-8" />
-    <meta name="viewport" content="width=device-width,initial-scale=1" />
-    <title>AI-Powered Resume Shortlisting — Demo</title>
-    <link rel="stylesheet" href="css/style.css" />
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>ResumeAI - AI-Powered Resume Shortlisting</title>
+    <!-- Font Awesome for icons -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+    <!-- Google Fonts -->
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <!-- Custom CSS -->
+    <link rel="stylesheet" href="style.css">
+    <link rel="stylesheet" href="login.css">
+    <link rel="stylesheet" href="auth.css">
 </head>
 <body>
-<!-- NAVBAR -->
-<header class="nav-wrap" id="top">
-    <div class="container nav-inner">
-        <a class="brand" href="#top">
-            <img src="images/graphuralogo.png" alt="GRAPHURA Logo" class="logo-img">
-            <div class="brand-content">
-                <div class="brand-text">
-
-
-                    </span>
-                </div>
-            </div>
-        </a>
-        <nav class="nav" id="nav">
-            <a href="#home" class="nav-link">Home</a>
-            <a href="#features" class="nav-link">Features</a>
-            <a href="#recent-jobs" class="nav-link">Recent Jobs</a>
-        </nav>
-        <div class="nav-actions">
-            <button class="btn-nav btn-white">Login</button>
-            <button class="btn-nav btn-white">Signup</button>
-            <button class="btn-nav btn-white">View Dashboard</button>
-            <button class="btn-nav btn-gradient">Create Job</button>
-        </div>
-        <button id="navToggle" class="nav-toggle" aria-label="Toggle navigation">
-            <span class="hamburger"></span>
-        </button>
-    </div>
-</header>
-
-<!-- HERO -->
-<section id="home" class="hero">
-    <div class="container hero-container" >
-
-        <div class="hero-content">
-            <div class="analyzer-container">
-
-                <!-- Blue Header -->
-                <div class="analyzer-header">
-                    <span class="header-icon">🤖</span>
-                    <span class="header-title">AI Resume Analyzer</span>
-                </div>
-
-                <!-- Main Content Area -->
-                <div class="analyzer-content">
-                    <!-- Upload Section -->
-                    <div class="upload-section">
-                        <h3 class="section-title">Upload Resume</h3>
-                        <div class="upload-area" id="uploadArea">
-                            <input type="file" id="fileInput" accept=".pdf,.doc,.docx" style="display:none">
-                            <div class="upload-placeholder" id="uploadPlaceholder" style="display:none">
-                                <div class="upload-icon">📄</div>
-                                <p>Click to upload or drag and drop</p>
-                                <p class="upload-hint">PDF, DOC, DOCX (Max 10MB)</p>
-                            </div>
-                            <div class="upload-success" id="uploadSuccess">
-                                <div class="upload-icon">📄</div>
-                                <div class="upload-fname" id="uploadFileName">Sumit_resume.pdf</div>
-                                <div class="upload-size" id="uploadFileSize">Size: 0.10 MB</div>
-                                <div class="upload-status">File uploaded successfully!</div>
-                            </div>
-                        </div>
-
-                        <!-- Job Description Section -->
-                        <div class="job-desc">
-                            <label for="jobDescription">Job Description</label>
-                            <textarea id="jobDescription" rows="5" placeholder="Enter job description here...">We are seeking a skilled Data Scientist to join our team. The ideal candidate should have:
-
-Key Requirements:
-• Master's or PhD in Data Science, Statistics,</textarea>
-                            <select id="roleSelect" aria-label="role-select">
-                                <option>Data Scientist</option>
-                                <option>Software Engineer</option>
-                                <option>Product Manager</option>
-                                <option>Data Analyst</option>
-                                <option>Machine Learning Engineer</option>
-                            </select>
-                        </div>
-
-                        <!-- Analyze Button -->
-                        <div class="analyze-row">
-                            <button id="analyzeBtn" class="btn primary analyze-btn">
-                                <span class="btn-icon">⚙️</span>
-                                <span>Analyze Resume</span>
-                            </button>
-                        </div>
-                    </div>
-
-                    <!-- Results Section (Initially Hidden) -->
-                    <div class="result-section" id="resultSection" style="display:none">
-                        <div class="result-header">
-                            <span class="result-icon">📊</span>
-                            <span class="result-title">Analysis Results</span>
-                        </div>
-
-                        <div class="result-body">
-                            <div class="left-score">
-                                <div class="big-score" id="overallScore">90<span class="pct">%</span></div>
-                                <div class="small">Overall Match Score</div>
-                                <div class="score-bar">
-                                    <div class="score-fill" id="overallScoreBar" style="width:90%"></div>
-                                </div>
-                            </div>
-
-                            <div class="breakdown">
-                                <h4>Detailed Breakdown:</h4>
-                                <div class="row">
-                                    <span class="row-label">Skills Match</span>
-                                    <span class="row-value" id="skillsScore">69%</span>
-                                    <div class="progress">
-                                        <div class="bar skill" id="skillsBar" style="width:69%"></div>
-                                    </div>
-                                </div>
-                                <div class="row">
-                                    <span class="row-label">Experience Match</span>
-                                    <span class="row-value" id="expScore">63%</span>
-                                    <div class="progress">
-                                        <div class="bar exp" id="expBar" style="width:63%"></div>
-                                    </div>
-                                </div>
-                                <div class="row">
-                                    <span class="row-label">Education Match</span>
-                                    <span class="row-value" id="eduScore">83%</span>
-                                    <div class="progress">
-                                        <div class="bar edu" id="eduBar" style="width:83%"></div>
-                                    </div>
-                                </div>
-                            </div>
-                        </div>
-
-                        <hr class="result-divider"/>
-
-                        <div class="result-bottom">
-                            <div class="matched">
-                                <h4>
-                                    <span class="section-icon">✓</span>
-                                    Matched Skills
-                                </h4>
-                                <div class="chips" id="matchedSkills">
-                                    <span class="chip">JavaScript</span>
-                                    <span class="chip">React</span>
-                                    <span class="chip">Git</span>
-                                </div>
-                            </div>
-
-                            <div class="to-develop">
-                                <h4>
-                                    <span class="section-icon warning">⚠</span>
-                                    Skills to Develop
-                                </h4>
-                                <div class="chips" id="skillsToDevelop">
-                                    <span class="chip alt">HTML</span>
-                                    <span class="chip alt">CSS</span>
-                                </div>
-                            </div>
-                        </div>
-
-                        <div class="recommendations">
-                            <h4>
-                                <span class="section-icon info">💡</span>
-                                Recommendations
-                            </h4>
-                            <ul id="recommendationsList">
-                                <li>Consider developing skills in: HTML, CSS</li>
-                                <li>Excellent candidate for technical interview</li>
-                                <li>Consider for senior-level position based on skill match</li>
-                            </ul>
-                        </div>
-
-                        <div class="result-actions">
-                            <button class="btn primary" id="downloadBtn">
-                                <span class="btn-icon">⬇️</span>
-                                <span>Download Report</span>
-                            </button>
-                            <button class="btn ghost" id="analyzeAnotherBtn">
-                                <span class="btn-icon">🔄</span>
-                                <span>Analyze Another</span>
-                            </button>
-                        </div>
-                    </div>
-                </div>
-            </div>
-        </div>
-    </div>
-    </div>
-    <div class="hero-image">
-        <img src="images/Aiimage.png" alt="AI Robot analyzing resume" class="hero-illustration">
-    </div>
-    </div>
-</section>
-
-<!-- Features Section -->
-
-<!-- ABOUT -->
-<section id="about" class="section about">
-    <div class="container">
-        <h2>About</h2>
-        <div class="about-grid">
-            <div class="card">
-                <h3>Mission</h3>
-                <p>To help recruiters find best-fit candidates faster by automating resume parsing and delivering unbiased, data-driven shortlists.</p>
-            </div>
-            <div class="card">
-                <h3>Vision</h3>
-                <p>Make hiring efficient and fair — powered by transparent scoring and recruiter-friendly dashboards.</p>
-            </div>
-            <div class="card founder">
-                <h3>Founder</h3>
-                <div class="founder-info">
-                    <img src="https://via.placeholder.com/80" alt="Founder" />
-                    <div>
-                        <strong>Er. Jitendra Attri</strong>
-                        <p class="muted">Entrepreneur & Mindset Coach</p>
-                        <p class="muted small">B.Tech, PGDM — Ex SPX-USA, Elektromag, Attrico MD & CEO</p>
-                    </div>
-                </div>
-            </div>
-        </div>
-    </div>
-</section>
-
-<!-- SERVICES -->
-<section id="services" class="section services">
-    <div class="container">
-        <h2>Services</h2>
-        <div class="cards">
-            <article class="service-card">
-                <div class="icon">📄</div>
-                <h3>Resume Parsing</h3>
-                <p>PDF/DOCX/LinkedIn extraction with name, skills, experience, education and projects.</p>
-            </article>
-
-            <article class="service-card">
-                <div class="icon">⚖️</div>
-                <h3>Weighted Scoring</h3>
-                <p>Customizable scoring rubric — format, skills, experience, projects, education, certifications.</p>
-            </article>
-
-            <article class="service-card">
-                <div class="icon">📊</div>
-                <h3>Dashboard & Filters</h3>
-                <p>Ranked candidate view with score filters, export & shortlist management.</p>
-            </article>
-
-            <article class="service-card">
-                <div class="icon">🔁</div>
-                <h3>Export & Integration</h3>
-                <p>Download CSV/PDF and integrate with HR tools or ATS (via API).</p>
-            </article>
-        </div>
-    </div>
-</section>
-
-<!-- FEATURES -->
-<section id="features" class="section features">
-    <div class="container">
-        <div class="section-header">
-            <h2>Powerful Features</h2>
-            <p>Discover how our AI-powered resume analyzer can transform your hiring process</p>
-        </div>
-
-        <div class="features-grid">
-            <div class="feature-card">
-                <div class="feature-icon">
-                    <span>🤖</span>
-                </div>
-                <h3>AI-Powered Analysis</h3>
-                <p>Advanced algorithms analyze resumes with human-like understanding, identifying key skills and experience.</p>
-            </div>
-
-            <div class="feature-card">
-                <div class="feature-icon">
-                    <span>⚡</span>
-                </div>
-                <h3>Lightning Fast</h3>
-                <p>Process hundreds of resumes in seconds, saving you hours of manual screening time.</p>
-            </div>
-
-            <div class="feature-card">
-                <div class="feature-icon">
-                    <span>🎯</span>
-                </div>
-                <h3>Smart Matching</h3>
-                <p>Intelligent matching of candidate skills with job requirements for better hiring decisions.</p>
-            </div>
-
-            <div class="feature-card">
-                <div class="feature-icon">
-                    <span>📊</span>
-                </div>
-                <h3>Detailed Reports</h3>
-                <p>Comprehensive analytics and insights to help you make data-driven hiring decisions.</p>
-            </div>
-        </div>
-    </div>
-</section>
-
-<!-- CONTACT -->
-<section id="contact" class="section contact">
-    <div class="container contact-grid">
-        <div>
-            <h2>Contact</h2>
-            <p>Get a demo or discuss integration and pricing.</p>
-            <ul class="contact-info">
-                <li><strong>Email:</strong> hello@resumeshortlist.ai</li>
-                <li><strong>Phone:</strong> +91 98765 43210</li>
-                <li><strong>Address:</strong> 123, Industrial Area, Delhi, India</li>
+    <!-- Navigation Bar -->
+    <nav class="navbar">
+        <div class="container">
+            <a href="#" class="logo">
+                <img src="image/graphuralogo.png" alt="Graphura Logo" class="logo-img">
+            </a>
+            
+            <!-- Desktop Navigation -->
+            <ul class="nav-links">
+                <li><a href="#home" class="nav-link active text-decoration-none" style="text-decoration: none;">Home</a></li>
+                <li><a href="#about" class="nav-link text-decoration-none" style="text-decoration: none;">About Us</a></li>
+                <li><a href="#features" class="nav-link text-decoration-none" style="text-decoration: none;">Features</a></li>
+                <li><a href="#contact" class="nav-link text-decoration-none" style="text-decoration: none;">Contact</a></li>
+                <li><a href="#" class="nav-link btn-login text-decoration-none" style="text-decoration: none;" onclick="openLogin(); return false;">Login/Sign up</a></li>
+                <li><a href="recruiter.html" class="nav-link btn-recruiter text-decoration-none" style="text-decoration: none;">Recruiter</a></li>
+                
             </ul>
 
-            <div class="map">
-                <!-- Google Maps embed placeholder: replace src with your maps embed link -->
-                <iframe
-                        title="Office location"
-                        src="https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d3769.123456789!2d77.0!3d28.6!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x0%3A0x0!2zMjjCsDM2JzUwLjAiTiA3N8KwMDAnMDIuMCJF!5e0!3m2!1sen!2sin!4v1600000000000!5m2!1sen!2sin"
-                        allowfullscreen="" loading="lazy"></iframe>
+            <!-- Mobile Menu Button -->
+            <div class="mobile-menu-btn">
+                <i class="fas fa-bars"></i>
             </div>
         </div>
+    </nav>
 
-        <form id="contactForm" class="contact-form" novalidate>
-            <label>
-                Name
-                <input type="text" id="cf-name" required />
-            </label>
-            <label>
-                Email
-                <input type="email" id="cf-email" required />
-            </label>
-            <label>
-                Message
-                <textarea id="cf-message" rows="6" required></textarea>
-            </label>
-            <div class="form-actions">
-                <button type="submit" class="btn primary">Send Message</button>
-                <button type="reset" class="btn ghost">Reset</button>
+    <!-- Hero Section -->
+    <section id="home" class="hero">
+        <div class="container">
+            <div class="hero-content">
+                <h1>AI Resume Checker: Get your resume score now.</h1>
+                <p>Streamline your hiring process with our advanced AI technology that analyzes and ranks resumes in seconds.</p>
+                <div class="cta-buttons">
+                    <a href="#features" class="btn btn-primary">Learn More</a>
+                    <a href="#contact" class="btn btn-outline">Get Started</a>
+                </div>
             </div>
-            <div id="formMsg" class="form-msg" aria-live="polite"></div>
-        </form>
-    </div>
-</section>
-
-<!-- FOOTER -->
-<footer class="footer">
-    <div class="container footer-grid">
-        <div>© <span id="year"></span> ResumeShortlist • All rights reserved.</div>
-        <div class="socials">
-            <a href="#" aria-label="LinkedIn">LinkedIn</a>
-            <a href="#" aria-label="Twitter">Twitter</a>
-            <a href="#" aria-label="Contact">Contact</a>
-        </div>
-    </div>
-</footer>
-
-<!-- Login/Signup Modals -->
-<div class="modal-overlay" id="authModalOverlay">
-    <!-- Login Form -->
-    <div class="modal" id="loginModal">
-        <button class="close-modal" aria-label="Close modal">&times;</button>
-        <div class="modal-content">
-            <h2>Welcome Back</h2>
-            <p class="modal-subtitle">Log in to your account</p>
-            <form id="loginForm" class="auth-form">
-                <div class="form-group">
-                    <input type="email" id="loginEmail" required placeholder="Email Address">
-                    <label for="loginEmail">Email</label>
-                </div>
-                <div class="form-group">
-                    <input type="password" id="loginPassword" required placeholder="••••••••">
-                    <label for="loginPassword">Password</label>
-                </div>
-                <div class="form-options">
-                    <label class="remember-me">
-                        <input type="checkbox" id="rememberMe">
-                        <span>Remember me</span>
-                    </label>
-                    <a href="#" class="forgot-password">Forgot password?</a>
-                </div>
-                <button type="submit" class="btn btn-primary">Log In</button>
-                <p class="switch-form">
-                    Don't have an account? <a href="#" class="switch-to-signup">Sign up</a>
-                </p>
-            </form>
-            <div class="divider">
-                <span>or</span>
-            </div>
-            <div class="social-login">
-                <button class="btn btn-google">
-                    <svg viewBox="0 0 24 24" width="20" height="20">
-                        <path fill="currentColor" d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z" fill="#4285F4"></path>
-                        <path fill="currentColor" d="M12 23c2.97 0 5.46-.98 7.28-2.66l-3.57-2.77c-.98.66-2.23 1.06-3.71 1.06-2.86 0-5.29-1.93-6.16-4.53H2.18v2.84C3.99 20.53 7.7 23 12 23z" fill="#34A853"></path>
-                        <path fill="currentColor" d="M5.84 13.1a6.9 6.9 0 01-.36-2.1c0-.73.13-1.43.36-2.1V6.06H2.18A11.86 11.86 0 000 11.99c0 1.92.46 3.73 1.24 5.33l3.6-2.22z" fill="#FBBC05"></path>
-                        <path fill="currentColor" d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.06l3.66 2.84c.87-2.6 3.3-4.52 6.16-4.52z" fill="#EA4335"></path>
-                    </svg>
-                    Continue with Google
-                </button>
+            <div class="hero-image">
+                <img src="image/Aiimage.png" alt="AI Resume Analysis">
             </div>
         </div>
-    </div>
+    </section>
 
-    <!-- Signup Form -->
-    <div class="modal" id="signupModal" style="display: none;">
-        <button class="close-modal" aria-label="Close modal">&times;</button>
-        <div class="modal-content">
-            <h2>Create Account</h2>
-            <p class="modal-subtitle">Get started with your free account</p>
-            <form id="signupForm" class="auth-form">
-                <div class="form-group">
-                    <input type="text" id="signupName" required placeholder="Full Name">
-                    <label for="signupName">Full Name</label>
+    <!-- About Section -->
+    <section id="about" class="section about">
+        <div class="container">
+            <div class="section-header">
+                <h2>About Us</h2>
+                <p>Revolutionizing the recruitment process with cutting-edge AI technology.</p>
+            </div>
+            <div class="about-cards">
+                <div class="about-card">
+                    <div class="card-icon">
+                        <i class="fas fa-bullseye"></i>
+                    </div>
+                    <h3>Our Mission</h3>
+                    <p>To provide innovative AI solutions that transform the recruitment process and help companies find the best talent efficiently.</p>
                 </div>
-                <div class="form-group">
-                    <input type="email" id="signupEmail" required placeholder="Email Address">
-                    <label for="signupEmail">Email</label>
+                <div class="about-card">
+                    <div class="card-icon">
+                        <i class="fas fa-eye"></i>
+                    </div>
+                    <h3>Our Vision</h3>
+                    <p>To become the global leader in AI-powered recruitment solutions, making hiring faster, fairer, and more effective.</p>
                 </div>
-                <div class="form-group">
-                    <input type="password" id="signupPassword" required placeholder="••••••••">
-                    <label for="signupPassword">Password</label>
+                <div class="about-card">
+                    <div class="card-icon">
+                        <i class="fas fa-chart-line"></i>
+                    </div>
+                    <h3>Our Approach</h3>
+                    <p>We combine cutting-edge AI technology with deep industry expertise to deliver exceptional recruitment solutions.</p>
                 </div>
-                <div class="form-group">
-                    <input type="password" id="confirmPassword" required placeholder="••••••••">
-                    <label for="confirmPassword">Confirm Password</label>
-                </div>
-                <div class="form-group terms">
-                    <input type="checkbox" id="terms" required>
-                    <label for="terms">I agree to the <a href="#">Terms of Service</a> and <a href="#">Privacy Policy</a></label>
-                </div>
-                <button type="submit" class="btn btn-primary">Create Account</button>
-                <p class="switch-form">
-                    Already have an account? <a href="#" class="switch-to-login">Log in</a>
-                </p>
-            </form>
+            </div>
         </div>
+    </section>
+
+    <!-- Features Section -->
+    <section id="features" class="section features">
+        <div class="container">
+            <div class="section-header">
+                <h2>Our Features</h2>
+                <p>Powerful tools to streamline your hiring process</p>
+            </div>
+            <div class="features-grid">
+                <div class="feature-card">
+                    <div class="feature-icon">
+                        <i class="fas fa-bolt"></i>
+                    </div>
+                    <h3>Fast Processing</h3>
+                    <p>Process hundreds of resumes in seconds with our AI-powered system.</p>
+                </div>
+                <div class="feature-card">
+                    <div class="feature-icon">
+                        <i class="fas fa-chart-line"></i>
+                    </div>
+                    <h3>Smart Ranking</h3>
+                    <p>Get candidates ranked based on job requirements and skills match.</p>
+                </div>
+                <div class="feature-card">
+                    <div class="feature-icon">
+                        <i class="fas fa-shield-alt"></i>
+                    </div>
+                    <h3>Secure & Private</h3>
+                    <p>Your data is encrypted and protected with enterprise-grade security.</p>
+                </div>
+                <div class="feature-card">
+                    <div class="feature-icon">
+                        <i class="fas fa-search"></i>
+                    </div>
+                    <h3>Advanced Search</h3>
+                    <p>Find the perfect candidate with our powerful search filters.</p>
+                </div>
+                <div class="feature-card">
+                    <div class="feature-icon">
+                        <i class="fas fa-bell"></i>
+                    </div>
+                    <h3>Real-time Notifications</h3>
+                    <p>Get instant updates on candidate applications and status changes.</p>
+                </div>
+                <div class="feature-card">
+                    <div class="feature-icon">
+                        <i class="fas fa-chart-pie"></i>
+                    </div>
+                    <h3>Analytics Dashboard</h3>
+                    <p>Track your hiring metrics and make data-driven decisions.</p>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Contact Section -->
+    <section id="contact" class="section contact">
+        <div class="container">
+            <div class="contact-container">
+                <!-- Left Side - Contact Information -->
+                <div class="contact-info">
+                    <div class="contact-card">
+                        <div class="contact-icon">
+                            <i class="fas fa-map-marker-alt"></i>
+                        </div>
+                        <div class="contact-details">
+                            <h3>Our Location</h3>
+                            <p>Plot No 35, 2nd Floor,<br>Vishal Nagar, Sector 3,<br>Gurugram, Haryana 122001</p>
+                        </div>
+                    </div>
+
+                    <div class="contact-card">
+                        <div class="contact-icon">
+                            <i class="fas fa-phone-alt"></i>
+                        </div>
+                        <div class="contact-details">
+                            <h3>Phone Number</h3>
+                            <p>+91 9999 000 999<br>+91 9999 000 888</p>
+                        </div>
+                    </div>
+
+                    <div class="contact-card">
+                        <div class="contact-icon">
+                            <i class="fas fa-envelope"></i>
+                        </div>
+                        <div class="contact-details">
+                            <h3>Email Address</h3>
+                            <p>info@graphura.com<br>support@graphura.com</p>
+                        </div>
+                    </div>
+
+                    <div class="contact-card">
+                        <div class="contact-icon">
+                            <i class="fas fa-question-circle"></i>
+                        </div>
+                        <div class="contact-details">
+                            <h3>Have Questions?</h3>
+                            <p>We're here to help and answer any question you might have. We look forward to hearing from you.</p>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Right Side - Map -->
+                <div class="map-container">
+                    <iframe 
+                        src="https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d3507.450803648842!2d77.0726!3d28.4726!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x390d192e8a8a1c1f%3A0x9b9b9b9b9b9b9b9b9!2sGraphura%20India%20Private%20Limited!5e0!3m2!1sen!2sin!4v1620000000000!5m2!1sen!2sin" 
+                        width="100%" 
+                        height="100%" 
+                        style="border:0;" 
+                        allowfullscreen="" 
+                        loading="lazy">
+                    </iframe>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Footer -->
+    <footer class="footer">
+        <div class="container">
+            <div class="footer-content">
+                <div class="footer-about">
+                    <h3>ResumeAI</h3>
+                    <p>Transforming the recruitment process with AI-powered resume shortlisting and candidate matching.</p>
+                    <div class="social-links">
+                        <a href="#"><i class="fab fa-facebook-f"></i></a>
+                        <a href="#"><i class="fab fa-twitter"></i></a>
+                        <a href="#"><i class="fab fa-linkedin-in"></i></a>
+                        <a href="#"><i class="fab fa-instagram"></i></a>
+                    </div>
+                </div>
+                <div class="footer-links">
+                    <h4>Quick Links</h4>
+                    <ul>
+                        <li><a href="#home">Home</a></li>
+                        <li><a href="#about">About Us</a></li>
+                        <li><a href="#features">Features</a></li>
+                        <li><a href="#jobs">Recent Jobs</a></li>
+                        <li><a href="#contact">Contact</a></li>
+                    </ul>
+                </div>
+                <div class="footer-links">
+                    <h4>Company</h4>
+                    <ul>
+                        <li><a href="#">Careers</a></li>
+                        <li><a href="#">Blog</a></li>
+                        <li><a href="#">Pricing</a></li>
+                        <li><a href="#">Testimonials</a></li>
+                        <li><a href="#">FAQ</a></li>
+                    </ul>
+                </div>
+                <div class="footer-newsletter">
+                    <h4>Newsletter</h4>
+                    <p>Subscribe to our newsletter for the latest updates.</p>
+                    <form class="newsletter-form">
+                        <input type="email" placeholder="Your Email" required>
+                        <button type="submit"><i class="fas fa-paper-plane"></i></button>
+                    </form>
+                </div>
+            </div>
+            <div class="footer-bottom">
+                <p>&copy; 2023 ResumeAI. All rights reserved.</p>
+                <div class="footer-legal">
+                    <a href="#">Privacy Policy</a>
+                    <a href="#">Terms of Service</a>
+                    <a href="#">Cookie Policy</a>
+                </div>
+            </div>
+        </div>
+    </footer>
+
+    <!-- Back to Top Button -->
+    <button id="backToTop" class="back-to-top" aria-label="Back to top">
+        <i class="fas fa-arrow-up"></i>
+    </button>
+
+    <!-- Scripts -->
+    <script src="script.js"></script>
+
+    <!-- Login/Signup Popup HTML -->
+    <div id="overlay" class="overlay" onclick="closePopup()"></div>
+
+    <!-- LOGIN POPUP -->
+    <div id="loginPopup" class="popup">
+        <span class="close" onclick="closePopup()">×</span>
+        <h2>Login</h2>
+        <input type="email" id="loginEmail" placeholder="Email" required>
+        <input type="password" id="loginPassword" placeholder="Password" required>
+        <p id="loginMsg" class="message"></p>
+        <button class="btn" onclick="login()">Login</button>
+
+        <p>Don't have an account?  
+            <a href="#" class="switch-link" data-target="signupPopup">Signup</a>
+        </p>
     </div>
-</div>
 
+    <!-- SIGNUP POPUP -->
+    <div id="signupPopup" class="popup">
+        <span class="close" onclick="closePopup()">×</span>
+        <h2>Create Account</h2>
+        <p class="sub-title">Join our community and start using ResumeAI!</p>
 
-<script>
-    // DOM Elements
-    const authModalOverlay = document.getElementById('authModalOverlay');
-    const featuresLink = document.querySelector('a[href="#features"]');
-    const homeLink = document.querySelector('a[href="#home"]');
-    const homeSection = document.getElementById('home');
-    const featuresSection = document.getElementById('features');
-    
-    // Smooth scroll to sections
-    document.querySelectorAll('a[href^="#"]').forEach(anchor => {
-      anchor.addEventListener('click', function (e) {
-        e.preventDefault();
-        const targetId = this.getAttribute('href');
-        if (targetId === '#') return;
-        
-        const targetElement = document.querySelector(targetId);
-        if (targetElement) {
-          targetElement.scrollIntoView({
-            behavior: 'smooth'
-          });
+        <input type="text" id="signupName" placeholder="Full Name" required>
+        <input type="email" id="signupEmail" placeholder="Email" required>
+        <input type="password" id="signupPassword" placeholder="Password" required>
+        <input type="password" id="confirmPassword" placeholder="Confirm Password" required>
+        <p id="signupMsg" class="message"></p>
+        <button class="btn" onclick="register()">Signup</button>
+
+        <p>Already have an account?  
+            <a href="#" class="switch-link" data-target="loginPopup">Login</a>
+        </p>
+    </div>
+
+    <script>
+        // Function to open login popup
+        function openLogin() {
+            document.getElementById('overlay').style.display = 'block';
+            document.getElementById('loginPopup').style.display = 'block';
+            document.body.style.overflow = 'hidden';
         }
-      });
-    });
-    const loginModal = document.getElementById('loginModal');
-    const signupModal = document.getElementById('signupModal');
-    const loginButtons = document.querySelectorAll('.btn-nav:nth-child(1)'); // First button is login
-    const signupButtons = document.querySelectorAll('.btn-nav:nth-child(2)'); // Second button is signup
-    const closeButtons = document.querySelectorAll('.close-modal');
-    const switchToSignup = document.querySelector('.switch-to-signup');
-    const switchToLogin = document.querySelector('.switch-to-login');
 
-    // Open Login Modal
-    function openLoginModal() {
-      authModalOverlay.classList.add('active');
-      loginModal.style.display = 'block';
-      signupModal.style.display = 'none';
-      // Trigger reflow to restart animation
-      void loginModal.offsetWidth;
-      loginModal.classList.add('active');
-    }
+        // Function to open signup popup
+        function openSignup() {
+            document.getElementById('overlay').style.display = 'block';
+            document.getElementById('signupPopup').style.display = 'block';
+            document.body.style.overflow = 'hidden';
+        }
 
-    // Open Signup Modal
-    function openSignupModal() {
-      authModalOverlay.classList.add('active');
-      signupModal.style.display = 'block';
-      loginModal.style.display = 'none';
-      // Trigger reflow to restart animation
-      void signupModal.offsetWidth;
-      signupModal.classList.add('active');
-    }
+        // Function to close popup
+        function closePopup() {
+            document.querySelectorAll('.popup').forEach(popup => {
+                popup.style.display = 'none';
+            });
+            
+            const overlay = document.querySelector('.overlay');
+            if (overlay) {
+                overlay.style.display = 'none';
+            }
+            
+            document.body.style.overflow = 'auto';
+        }
 
-    // Close Modal
-    function closeModal() {
-      authModalOverlay.classList.remove('active');
-      loginModal.classList.remove('active');
-      signupModal.classList.remove('active');
-      
-      // Reset forms
-      document.getElementById('loginForm').reset();
-      document.getElementById('signupForm').reset();
-    }
+        // Show signup popup when page loads
+        document.addEventListener('DOMContentLoaded', function() {
+            // Show signup popup on page load
+            openSignup();
+            
+            // Handle switch between login and signup
+            const switchLinks = document.querySelectorAll('.switch-link');
+            
+            switchLinks.forEach(link => {
+                link.addEventListener('click', function(e) {
+                    e.preventDefault();
+                    const targetPopup = this.getAttribute('data-target');
+                    
+                    // Hide all popups
+                    document.querySelectorAll('.popup').forEach(popup => {
+                        popup.style.display = 'none';
+                    });
+                    
+                    // Show the target popup
+                    const popup = document.getElementById(targetPopup);
+                    if (popup) {
+                        popup.style.display = 'block';
+                    }
+                });
+            });
 
-    // Event Listeners
-    loginButtons.forEach(button => {
-      button.addEventListener('click', openLoginModal);
-    });
-
-    signupButtons.forEach(button => {
-      button.addEventListener('click', openSignupModal);
-    });
-
-    closeButtons.forEach(button => {
-      button.addEventListener('click', closeModal);
-    });
-
-    if (switchToSignup) {
-      switchToSignup.addEventListener('click', (e) => {
-        e.preventDefault();
-        openSignupModal();
-      });
-    }
-
-    if (switchToLogin) {
-      switchToLogin.addEventListener('click', (e) => {
-        e.preventDefault();
-        openLoginModal();
-      });
-    }
-
-    // Close modal when clicking outside
-    authModalOverlay.addEventListener('click', (e) => {
-      if (e.target === authModalOverlay) {
-        closeModal();
-      }
-    });
-
-    // Close with Escape key
-    document.addEventListener('keydown', (e) => {
-      if (e.key === 'Escape') {
-        closeModal();
-      }
-    });
-
-    // Form submission
-    document.getElementById('loginForm')?.addEventListener('submit', (e) => {
-      e.preventDefault();
-      // Add your login logic here
-      console.log('Login form submitted');
-      // closeModal();
-    });
-
-    document.getElementById('signupForm')?.addEventListener('submit', (e) => {
-      e.preventDefault();
-      // Add your signup logic here
-      console.log('Signup form submitted');
-      // closeModal();
-    });
-</script>
-
-<script src="js/script.js"></script>
+            // Close popup with Escape key
+            document.addEventListener('keydown', function(e) {
+                if (e.key === 'Escape') {
+                    closePopup();
+                }
+            });
+        });
+    </script>
 </body>
 </html>

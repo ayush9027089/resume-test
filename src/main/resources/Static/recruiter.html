@@ -1,0 +1,280 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Recruiter Dashboard - AI Resume Shortlisting</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="style.css">
+    <style>
+        /* Recruiter Specific Styles */
+        .upload-section {
+            background: white;
+            padding: 30px;
+            border-radius: 10px;
+            box-shadow: var(--box-shadow);
+            margin-bottom: 30px;
+        }
+        
+        .upload-area {
+            border: 2px dashed #ddd;
+            border-radius: 8px;
+            padding: 40px 20px;
+            text-align: center;
+            cursor: pointer;
+            transition: var(--transition);
+            margin-bottom: 20px;
+        }
+        
+        .upload-area:hover {
+            border-color: var(--primary-color);
+            background: rgba(74, 108, 247, 0.05);
+        }
+        
+        .upload-area i {
+            font-size: 3rem;
+            color: var(--primary-color);
+            margin-bottom: 15px;
+        }
+        
+        .file-list {
+            margin-top: 20px;
+        }
+        
+        .file-item {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 10px 15px;
+            background: #f8f9fa;
+            border-radius: 5px;
+            margin-bottom: 10px;
+        }
+        
+        .file-info {
+            display: flex;
+            align-items: center;
+        }
+        
+        .file-info i {
+            margin-right: 10px;
+            color: var(--primary-color);
+        }
+        
+        .file-remove {
+            color: var(--danger-color);
+            cursor: pointer;
+        }
+        
+        .results-table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 20px;
+            background: white;
+            border-radius: 10px;
+            overflow: hidden;
+            box-shadow: var(--box-shadow);
+        }
+        
+        .results-table th,
+        .results-table td {
+            padding: 15px;
+            text-align: left;
+            border-bottom: 1px solid #eee;
+        }
+        
+        .results-table th {
+            background: var(--primary-color);
+            color: white;
+            font-weight: 500;
+        }
+        
+        .results-table tr:last-child td {
+            border-bottom: none;
+        }
+        
+        .status-badge {
+            display: inline-block;
+            padding: 5px 10px;
+            border-radius: 20px;
+            font-size: 0.8rem;
+            font-weight: 500;
+        }
+        
+        .status-eligible {
+            background: #d4edda;
+            color: #155724;
+        }
+        
+        .status-not-eligible {
+            background: #f8d7da;
+            color: #721c24;
+        }
+        
+        .action-buttons {
+            display: flex;
+            justify-content: flex-end;
+            gap: 15px;
+            margin-top: 20px;
+        }
+        
+        @media (max-width: 768px) {
+            .action-buttons {
+                flex-direction: column;
+            }
+            
+            .action-buttons .btn {
+                width: 100%;
+                margin-bottom: 10px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <!-- Navbar -->
+    <nav class="navbar">
+        <div class="container">
+            <a href="index.html" class="logo">
+                <img src="image/graphuralogo.png" alt="Graphura Logo" class="logo-img">
+            </a>
+            
+            <!-- Desktop Navigation -->
+            <ul class="nav-links">
+                <li><a href="index.html#home" class="nav-link">Home</a></li>
+                <li><a href="index.html#about" class="nav-link">About Us</a></li>
+                <li><a href="index.html#features" class="nav-link">Features</a></li>
+                <li><a href="index.html#contact" class="nav-link">Contact</a></li>
+                <li><a href="#" class="nav-link btn-login" onclick="openLogin(); return false;">Login/Sign up</a></li>
+                <li><a href="recruiter.html" class="nav-link btn-recruiter active">Recruiter</a></li>
+            </ul>
+
+            <!-- Mobile Menu Button -->
+            <div class="mobile-menu-btn">
+                <i class="fas fa-bars"></i>
+            </div>
+        </div>
+    </nav>
+
+    <!-- Main Content -->
+    <div class="container" style="margin-top: 100px;">
+        <h1 class="section-title">Recruiter Dashboard</h1>
+        
+        <!-- Upload Section -->
+        <section class="upload-section">
+            <h2>Upload Resumes</h2>
+            <p>Upload up to 20 resumes at once for processing</p>
+            
+            <div class="upload-area" id="dropZone">
+                <i class="fas fa-cloud-upload-alt"></i>
+                <h3>Drag & Drop Resumes Here</h3>
+                <p>or</p>
+                <input type="file" id="fileInput" multiple accept=".pdf,.doc,.docx" style="display: none;">
+                <button class="btn" onclick="document.getElementById('fileInput').click()">Browse Files</button>
+                <p class="small">Supported formats: PDF, DOC, DOCX (Max 20 files, 10MB each)</p>
+            </div>
+            
+            <div class="file-list" id="fileList">
+                <!-- Files will be listed here -->
+            </div>
+            
+            <div class="action-buttons">
+                <button class="btn btn-outline" id="clearFiles">Clear All</button>
+                <button class="btn" id="processFiles">Process Resumes</button>
+            </div>
+        </section>
+        
+ <!-- Job Role and Skills Section -->
+        <section class="job-role-section">
+            <div class="section-header">
+                <h2>Find Your Perfect Match</h2>
+                <p>Select a job role and required skills to find the best candidates</p>
+            </div>
+            
+            <div class="job-role-container">
+                <div class="form-group">
+                    <label for="jobRole">Job Role</label>
+                    <div class="custom-select">
+                        <select id="jobRole" class="form-control">
+                            <option value="" disabled selected>Please Select</option>
+                            <option value="frontend">Frontend Developer</option>
+                            <option value="backend">Backend Developer</option>
+                            <option value="fullstack">Full Stack Developer</option>
+                            <option value="data_analyst">Data Analyst</option>
+                            <option value="data_scientist">Data Scientist</option>
+                            <option value="devops">DevOps Engineer</option>
+                            <option value="digital_marketing">Digital Marketing</option>
+                            <option value="graphic_designer">Graphic Designer</option>
+                            <option value="hr_manager">HR Manager</option>
+                        </select>
+                        <div class="select-arrow">
+                            <i class="fas fa-chevron-down"></i>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="form-group">
+                    <label>Required Skills</label>
+                    <div class="skills-container">
+                        <div class="skills-input-container">
+                            <div id="selectedSkills" class="selected-skills">
+                                <!-- Selected skills will appear here as tags -->
+                            </div>
+                            <button type="button" id="addSkillBtn" class="add-skill-btn">
+                                <i class="fas fa-plus"></i> Add Skill
+                            </button>
+                            <div id="skillsDropdown" class="skills-dropdown">
+                                <div class="search-container">
+                                    <input type="text" id="skillSearch" placeholder="Search skills..." class="search-input">
+                                    <i class="search-icon fas fa-search"></i>
+                                </div>
+                                <div id="skillsList" class="skills-list">
+                                    <!-- Skills will be populated by JavaScript -->
+                                </div>
+                            </div>
+                        </div>
+                        <div class="skill-count">
+                            <span id="skillCounter">0</span>/10 skills selected
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="job-role-actions">
+                    <p class="hint-text">Select a job role and add relevant skills to find the best matches</p>
+                </div>
+            </div>
+        </section>
+
+        <!-- Results Section -->
+        <section class="results-section" id="resultsSection" style="display: none;">
+        
+            
+            <div class="table-responsive">
+                <table class="results-table">
+                    <thead>
+                        <tr>
+                            <th>#</th>
+                            <th>Candidate Name</th>
+                            <th>Email</th>
+                            <th>Position</th>
+                            <th>Score</th>
+                            <th>Status</th>
+                            <th>Actions</th>
+                        </tr>
+                    </thead>
+                    <tbody id="resultsTableBody">
+                        <!-- Results will be populated by JavaScript -->
+                    </tbody>
+                </table>
+            </div>
+            
+            <div class="action-buttons" style="margin-top: 30px;">
+                <button class="btn btn-outline" id="exportCsv">Export to CSV</button>
+                <button class="btn" id="shortlistCandidates">Shortlist Selected</button>
+            </div>
+        </section>
+    </div>
+
+    <script src="recruiter.js"></script>
+</body>
+</html>
