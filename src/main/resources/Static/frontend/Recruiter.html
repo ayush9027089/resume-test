@@ -7,6 +7,8 @@
     <script src="https://cdn.tailwindcss.com"></script>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
     <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    
+    
 
 
     <script>
@@ -75,7 +77,6 @@
                 <div class="hidden md:flex space-x-8 items-center">
                     <a href="index.html" class="text-gray-800 hover:text-brand-primary font-medium transition hover-underline-animation">Home</a>
                     <a href="Recruiter.html" class="text-gray-800 hover:text-brand-primary font-medium transition hover-underline-animation">Recruiter</a>
-                    
                     <a href="dashboard.html" class="text-gray-800 hover:text-brand-primary font-medium transition hover-underline-animation">Analytics</a>
                     <button onclick="openLogin()" class="text-gray-800 hover:text-brand-primary font-medium transition hover-underline-animation">Login</button>
                     <button onclick="openSignup()" class="px-6 py-2.5 rounded-full bg-brand-primary text-white font-semibold shadow-lg shadow-brand-primary/30 hover:shadow-brand-primary/50 hover:bg-blue-600 transition-all duration-300 transform hover:-translate-y-1 hover:scale-105 active:scale-95">
@@ -84,7 +85,7 @@
                 </div>
 
                 <div class="md:hidden flex items-center">
-                    <button onclick="toggleMobileMenu()" class="text-gray-800 hover:text-brand-primary focus:outline-none p-2 transition-transform active:scale-90">
+                    <button id="mobile-menu-btn" onclick="toggleMobileMenu()" class="text-gray-800 hover:text-brand-primary focus:outline-none p-2 transition-transform active:scale-90">
                         <i class="fas fa-bars text-2xl"></i>
                     </button>
                 </div>
@@ -93,9 +94,8 @@
 
         <div id="mobile-menu" class="hidden md:hidden bg-white/95 backdrop-blur-md border-t absolute w-full left-0 shadow-xl transition-all duration-300 origin-top transform scale-y-100">
             <div class="px-4 pt-2 pb-6 space-y-2">
-                <a href="#home" class="block px-4 py-3 text-gray-800 hover:bg-brand-primary/10 hover:text-brand-primary rounded-lg transition-colors">Home</a>
+                <a href="index.html" class="block px-4 py-3 text-gray-800 hover:bg-brand-primary/10 hover:text-brand-primary rounded-lg transition-colors">Home</a>
                 <a href="Recruiter.html" class="block px-4 py-3 text-gray-800 hover:bg-brand-primary/10 hover:text-brand-primary rounded-lg transition-colors">Recruiter</a>
-                
                 <a href="dashboard.html" class="block px-4 py-3 text-gray-800 hover:bg-brand-primary/10 hover:text-brand-primary rounded-lg transition-colors">Analytics</a>
                 <a href="#" onclick="openLogin()" class="block px-4 py-3 text-gray-800 hover:bg-brand-primary/10 hover:text-brand-primary rounded-lg transition-colors">Login</a>
                 <a href="#" onclick="openSignup()" class="block px-4 py-3 text-brand-primary font-bold bg-brand-primary/5 hover:bg-brand-primary/10 rounded-lg transition-colors">Sign Up</a>
@@ -188,7 +188,7 @@
         </section>
 
         <div class="flex flex-col sm:flex-row gap-4 justify-end">
-            <button class="w-full sm:w-auto px-6 py-3 rounded-lg border border-brand-accent text-brand-accent hover:bg-brand-accent hover:text-brand-dark transition font-medium text-center">
+            <button id="clearAllBtn" type="button" aria-label="Clear all inputs" class="w-full sm:w-auto px-6 py-3 rounded-lg border border-brand-accent text-brand-accent hover:bg-brand-accent hover:text-brand-dark transition font-medium text-center">
                 Clear All
             </button>
             <a href="dashboard.html" class="w-full sm:w-auto px-8 py-3 rounded-lg bg-gradient-to-r from-brand-primary to-purple-600 text-white font-bold shadow-lg hover:shadow-brand-primary/50 transform hover:-translate-y-1 transition text-center">
@@ -274,5 +274,6 @@
     </div>
     <script src="https://unpkg.com/aos@2.3.1/dist/aos.js"></script>
     <script src="Recruiter.js"></script>
+    
     </body>
 </html>

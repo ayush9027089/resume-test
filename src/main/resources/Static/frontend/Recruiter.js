@@ -62,7 +62,7 @@ const loginPopup = document.getElementById('loginPopup');
         }
 
         function toggleMobileMenu() {
-            mobileMenu.classList.toggle('hidden');
+            mobileMenu.classList.toggle();
         }
 
         function handleSignup() {
@@ -156,8 +156,8 @@ if (jobDomainSelect && skillSelect && skillTagsContainer) {
             skillSelect.appendChild(option);
         });
 
-        // Clear any previous selection in the skill dropdown
-        skillSelect.value = '';
+        // FIX: Ensure placeholder is selected by index (0)
+        skillSelect.selectedIndex = 0; 
     }
 
     // Attach listener to Job Domain dropdown
@@ -182,21 +182,32 @@ if (jobDomainSelect && skillSelect && skillTagsContainer) {
     function addSkill() {
         const skillName = skillSelect.value.trim(); // Read value from the select element
         
-        // Reset the select box to the default option after reading the value
-        skillSelect.value = '';
-
-        if (skillName.length > 0 && skillName !== "Select a Skill") {
-            // Check for duplicates (by comparing skill name text content)
-            const existingSkills = Array.from(skillTagsContainer.querySelectorAll('span')).map(s => s.textContent.split(' ')[0].trim().toLowerCase());
-            if (existingSkills.includes(skillName.toLowerCase())) {
-                return; // Do nothing if duplicate
-            }
-
-            const newTag = createSkillTag(skillName);
-            if (newTag) {
-                skillTagsContainer.appendChild(newTag);
-            }
+        // 1. Check for placeholder (value is empty string)
+        // If the placeholder is selected, reset the index and exit.
+        if (skillName.length === 0) { 
+            skillSelect.selectedIndex = 0;
+            return; 
         }
+
+        // 2. Check for duplicates
+        const existingSkills = Array.from(skillTagsContainer.querySelectorAll('span')).map(s => s.textContent.split(' ')[0].trim().toLowerCase());
+        
+        if (existingSkills.includes(skillName.toLowerCase())) {
+            // Reset selection using selectedIndex even if duplicate to allow re-selection later
+            skillSelect.selectedIndex = 0; 
+            return; 
+        }
+
+        // 3. Add skill
+        const newTag = createSkillTag(skillName);
+        if (newTag) {
+            skillTagsContainer.appendChild(newTag);
+        }
+        
+        // 4. CRITICAL FIX: Reset the select box using selectedIndex (0)
+        // This is the key step that allows the change event to fire again 
+        // when the same option is subsequently re-selected.
+        skillSelect.selectedIndex = 0;
     }
 
     // Event listener for the Add button
@@ -215,5 +226,28 @@ if (jobDomainSelect && skillSelect && skillTagsContainer) {
             removeIcon.closest('span').remove();
         }
     });
+
+    // Clear All button functionality: resets file inputs, file lists, domain and skills
+    const clearAllBtn = document.getElementById('clearAllBtn');
+    if (clearAllBtn) {
+        clearAllBtn.addEventListener('click', () => {
+            // Clear all file inputs found on the page
+            document.querySelectorAll('input[type="file"]').forEach(fi => { try { fi.value = ''; } catch(e) {} });
+
+            // Clear all file list displays (there may be multiple with same id in markup)
+            document.querySelectorAll('#fileList').forEach(fl => fl.innerHTML = '');
+
+            // Reset job domain and skill dropdowns
+            if (jobDomainSelect) jobDomainSelect.selectedIndex = 0;
+            if (typeof updateSkillOptions === 'function') updateSkillOptions();
+            if (skillSelect) skillSelect.selectedIndex = 0;
+
+            // Remove any selected skill tags
+            if (skillTagsContainer) skillTagsContainer.innerHTML = '';
+
+            // Optionally move focus to top so user can start again
+            window.scrollTo({ top: 0, behavior: 'smooth' });
+        });
+    }
 }
 // END: Skill Management Functionality
