@@ -58,6 +58,7 @@ function openSignup(isSwitch = false) {
 const loginUrl = `${CONFIG.API_BASE_URL}/login`;
 
 async function handleLogin() {
+    
 
     const email = document.getElementById('login-email').value;
     const password = document.getElementById('login-password').value;
@@ -86,7 +87,7 @@ async function handleLogin() {
 
 
             console.log("Login Successful!");
-            window.location.href = "index.html";
+            window.location.href = "profile.html";
             alert("login successfull");
         } else {
 
