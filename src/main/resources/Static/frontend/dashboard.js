@@ -55,17 +55,101 @@ function openSignup(isSwitch = false) {
     }
 }
 
-function handleLogin() {
-    alert("Login functionality is not implemented yet.");
-    // In a real application, you'd handle form submission here
-    // closePopup(); 
+const loginUrl = `${CONFIG.API_BASE_URL}/login`;
+
+async function handleLogin() {
+
+    const email = document.getElementById('login-email').value;
+    const password = document.getElementById('login-password').value;
+
+    const requestBody = {
+        email: email,
+        password: password
+    };
+
+    try {
+
+        const response = await fetch(loginUrl, {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json'
+            },
+            body: JSON.stringify(requestBody)
+        });
+
+        if (response.ok) {
+
+            const data = await response.json();
+
+
+            localStorage.setItem('jwtToken', data.token);
+
+
+            console.log("Login Successful!");
+            window.location.href = "index.html";
+            alert("login successfull");
+        } else {
+
+            const errorMessage = await response.text();
+            alert("Login Failed: " + errorMessage);
+        }
+
+    } catch (error) {
+        console.error("Error:", error);
+        alert("Something went wrong. Please check the console.");
+    }
 }
 
-function handleSignup() {
-    alert("Signup functionality is not implemented yet.");
-    // In a real application, you'd handle form submission here
-    // closePopup();
-}
+async function handleSignup() {
+            // 1. Get input values from the new IDs in index.html
+            const name = document.getElementById('signup-name').value;
+            const email = document.getElementById('signup-email').value;
+            const password = document.getElementById('signup-password').value;
+
+            // The RegisterRequest in your Spring Boot likely requires these fields.
+            const requestBody = {
+                name: name,
+                email: email,
+                password: password
+            };
+
+            // Endpoint URL (Assuming Spring Boot is running on the same host/port)
+            const apiUrl = `${CONFIG.API_BASE_URL}/register`;
+
+            try {
+                // 2. Make the API Call using fetch
+                const response = await fetch(apiUrl, {
+                    method: 'POST',
+                    headers: {
+                        // Crucial for sending JSON data
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify(requestBody) // Convert JS object to JSON string
+                });
+                // 3. Handle the response
+                if (response.ok) {
+                    // Registration successful (Status 200 OK)
+                    const data = await response.json();
+                    console.log('Registration Successful. Received Token:', data.token);
+
+                    alert('Registration successful! Please login.');
+
+                    // Close signup and open login popup
+                    closePopup();
+                    openLogin();
+
+                } else {
+                    // Registration failed (e.g., Status 400 Bad Request)
+                    const error = await response.text(); // Get the plain error message from the body
+                    console.error('Registration Failed:', error);
+                    alert('Registration Failed: ' + error);
+                }
+            } catch (error) {
+                // Network or unexpected error
+                console.error('Network Error:', error);
+                alert('An unexpected network error occurred. Please try again.');
+            }
+        }
 // ===== END Login/Signup Functionality (NEW) =====
 
 
