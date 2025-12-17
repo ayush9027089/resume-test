@@ -1,0 +1,287 @@
+<!DOCTYPE html>
+<html lang="en" class="scroll-smooth">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>ResumeAI - Recruiter Dashboard</title>
+    
+    <script>
+        // Check immediately if the token exists
+        const token = localStorage.getItem('jwtToken');
+        if (!token) {
+            alert("Access Denied: You must be logged in to view this page.");
+            window.location.href = "index.html?openLogin=true";
+        }
+    </script>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <link href="https://unpkg.com/aos@2.3.1/dist/aos.css" rel="stylesheet">
+    
+    <script src="config.js"></script>
+    <script src="nav.js"></script> <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    colors: {
+                        brand: {
+                            dark: '#0f0f1a',
+                            card: '#1a1f2d',
+                            primary: '#4a6cf7',
+                            accent: '#6dd3ff',
+                        }
+                    },
+                    fontFamily: {
+                        sans: ['Poppins', 'sans-serif'],
+                    },
+                    animation: {
+                        'float': 'float 6s ease-in-out infinite',
+                        'pulse-slow': 'pulse 4s cubic-bezier(0.4, 0, 0.6, 1) infinite',
+                    },
+                    keyframes: {
+                        float: {
+                            '0%, 100%': { transform: 'translateY(0)' },
+                            '50%': { transform: 'translateY(-20px)' },
+                        }
+                    }
+                }
+            }
+        }
+    </script>
+    <style>
+        .glass-nav {
+            background: rgba(255, 255, 255, 0.8);
+            backdrop-filter: blur(12px);
+            border-bottom: 1px solid rgba(255, 255, 255, 0.3);
+        }
+        .text-gradient {
+            background: linear-gradient(135deg, #4a6cf7 0%, #764ba2 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+        .hover-underline-animation {
+            display: inline-block;
+            position: relative;
+        }
+        .hover-underline-animation::after {
+            content: '';
+            position: absolute;
+            width: 100%;
+            transform: scaleX(0);
+            height: 2px;
+            bottom: -2px;
+            left: 0;
+            background-color: #4a6cf7;
+            transform-origin: bottom right;
+            transition: transform 0.25s ease-out;
+        }
+        .hover-underline-animation:hover::after {
+            transform: scaleX(1);
+            transform-origin: bottom left;
+        }
+    </style>
+</head>
+<body class="bg-brand-dark text-gray-200 font-sans">
+
+    <div id="nav-placeholder"></div>
+
+    <main class="max-w-5xl mx-auto px-4 pt-24 md:pt-28 pb-12">
+        <header class="mb-8 md:mb-10 text-center animate-fade-in-down">
+            <h1 class="text-2xl md:text-4xl font-bold text-brand-accent mb-2">Recruiter Dashboard</h1>
+            <p class="text-gray-400 text-sm md:text-base">Streamline your hiring with AI analysis</p>
+        </header>
+
+       <section class="bg-brand-card rounded-2xl p-5 md:p-8 mb-8 shadow-xl border border-gray-700/50 hover:border-brand-primary/30 transition duration-300">
+    <div class="flex justify-between items-center mb-2">
+        <h2 class="text-lg md:text-xl font-semibold text-white">1. Upload Resumes</h2>
+        <span id="uploadStatus" class="hidden text-xs font-semibold px-2 py-1 rounded bg-green-500/20 text-green-400">Uploaded</span>
+    </div>
+    <p class="text-gray-400 text-sm mb-6">Select up to 20 PDF/DOCX files.</p>
+
+    <div class="border-2 border-dashed border-brand-accent/40 rounded-xl p-6 md:p-10 text-center hover:bg-brand-dark/50 hover:border-brand-accent transition cursor-pointer group" onclick="document.getElementById('fileInput').click()">
+        <i class="fas fa-cloud-upload-alt text-3xl md:text-4xl text-brand-accent mb-4 group-hover:scale-110 transition duration-300"></i>
+        <h3 class="text-base md:text-lg font-medium text-white">Drag & Drop Resumes</h3>
+        <p class="text-gray-500 text-xs md:text-sm mt-1">or click to browse</p>
+        <input type="file" id="fileInput" multiple accept=".pdf,.doc,.docx" class="hidden">
+    </div>
+
+    <div id="fileList" class="mt-4 max-h-40 overflow-y-auto space-y-2 text-sm text-gray-300"></div>
+
+    <div class="mt-6 flex justify-end gap-4">
+        <button onclick="uploadResumesToBackend()" class="px-6 py-3 rounded-lg bg-gradient-to-r from-brand-primary to-purple-600 text-white font-bold shadow-lg hover:shadow-brand-primary/50 transform hover:-translate-y-1 transition text-center flex items-center gap-2">
+            <i class="fas fa-upload"></i> Upload Resumes
+        </button>
+        
+        <a href="dashboard.html" class="px-6 py-3 rounded-lg border border-brand-primary text-brand-primary hover:bg-brand-primary hover:text-white font-bold shadow-lg hover:shadow-brand-primary/50 transform hover:-translate-y-1 transition text-center flex items-center gap-2">
+            <i class="fas fa-chart-line"></i> Analyze
+        </a>
+    </div>
+</section>
+
+        <section class="bg-brand-card rounded-2xl p-5 md:p-8 mb-8 shadow-xl border border-gray-700/50 hover:border-brand-primary/30 transition duration-300">
+    <div class="flex justify-between items-center mb-2">
+        <h2 class="text-lg md:text-xl font-semibold text-white">2. Upload Job Description</h2>
+        <span id="jdUploadStatus" class="hidden text-xs font-semibold px-2 py-1 rounded bg-green-500/20 text-green-400">Uploaded</span>
+    </div>
+    <p class="text-gray-400 text-sm mb-6">Select up to 20 PDF/DOCX files.</p>
+
+    <div class="border-2 border-dashed border-brand-accent/40 rounded-xl p-6 md:p-10 text-center hover:bg-brand-dark/50 hover:border-brand-accent transition cursor-pointer group" onclick="document.getElementById('jdInput').click()">
+        <i class="fas fa-cloud-upload-alt text-3xl md:text-4xl text-brand-accent mb-4 group-hover:scale-110 transition duration-300"></i>
+        <h3 class="text-base md:text-lg font-medium text-white">Drag & Drop Job Descriptions</h3>
+        <p class="text-gray-500 text-xs md:text-sm mt-1">or click to browse</p>
+        <input type="file" id="jdInput" multiple accept=".pdf,.doc,.docx" class="hidden">
+    </div>
+
+    <div id="jdList" class="mt-4 max-h-40 overflow-y-auto space-y-2 text-sm text-gray-300"></div>
+
+    <div class="mt-6 flex justify-end gap-4">
+        <button onclick="uploadJDToBackend()" class="px-6 py-3 rounded-lg bg-gradient-to-r from-brand-primary to-purple-600 text-white font-bold shadow-lg hover:shadow-brand-primary/50 transform hover:-translate-y-1 transition text-center flex items-center gap-2">
+            <i class="fas fa-upload"></i> Upload JDs
+        </button>
+
+        <a href="dashboard.html" class="px-6 py-3 rounded-lg border border-brand-primary text-brand-primary hover:bg-brand-primary hover:text-white font-bold shadow-lg hover:shadow-brand-primary/50 transform hover:-translate-y-1 transition text-center flex items-center gap-2">
+            <i class="fas fa-chart-line"></i> Analyze
+        </a>
+    </div>
+</section>
+
+        <section class="bg-brand-card rounded-2xl p-5 md:p-8 mb-8 shadow-xl border border-gray-700/50">
+            <h2 class="text-lg md:text-xl font-semibold text-white mb-2">3. Find Your Perfect Match</h2>
+            <p class="text-gray-400 text-sm mb-6">Select a Job Domain and Required Skills to Find the Best Candidates.</p>
+
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                <div>
+                    <label class="block text-gray-300 text-sm font-medium mb-2">Job Domain</label>
+                    <div class="relative">
+                        <select id="jobDomainSelect" class="w-full appearance-none bg-brand-dark border border-brand-accent/30 text-white py-3 px-4 rounded-lg focus:outline-none focus:border-brand-accent">
+                            <option disabled selected>Select Domain</option>
+                            <option>Sales & Marketing</option>
+                            <option>Data Science & Analytics</option>
+                            <option>Human Resources</option>
+                            <option>Social Media Management</option>
+                            <option>Graphic Design</option>
+                            <option>Digital Marketing</option>
+                            <option>Video Editing</option>
+                            <option>Full Stack Developer</option>
+                            <option>MERN Stack Developer</option>
+                            <option>E-Mail & Outreaching</option>
+                            <option>Content Writing</option>
+                            <option>Content Creator</option>
+                            <option>UI/UX Designing</option>
+                            <option>Front-End Developer</option>
+                            <option>Back-End Developer</option>
+                        </select>
+                        <div class="pointer-events-none absolute inset-y-0 right-0 flex items-center px-2 text-brand-accent">
+                            <i class="fas fa-chevron-down text-sm"></i>
+                        </div>
+                    </div>
+                </div>
+
+                <div>
+                    <label class="block text-gray-300 text-sm font-medium mb-2">Required Skills</label>
+                    <div class="flex gap-2 mb-3">
+                        <div class="relative flex-1">
+                            <select id="skillSelect" class="w-full bg-brand-dark border border-brand-accent/30 text-white py-3 px-4 rounded-lg focus:outline-none focus:border-brand-accent">
+                                <option disabled selected value="">Select a Skill</option>
+                            </select>
+                        </div>
+                    </div>
+                    <div class="flex flex-wrap gap-2" id="skillTags">
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <div class="flex flex-col sm:flex-row gap-4 justify-end">
+            <button id="clearAllBtn" type="button" aria-label="Clear all inputs" class="w-full sm:w-auto px-6 py-3 rounded-lg border border-brand-accent text-brand-accent hover:bg-brand-accent hover:text-brand-dark transition font-medium text-center">
+                Clear All
+            </button>
+            <a href="dashboard.html" class="w-full sm:w-auto px-8 py-3 rounded-lg bg-gradient-to-r from-brand-primary to-purple-600 text-white font-bold shadow-lg hover:shadow-brand-primary/50 transform hover:-translate-y-1 transition text-center">
+                Analyze Candidates
+            </a>
+        </div>
+
+    </main>
+
+    <footer class="glass-nav border-t border-gray-200 pt-16 pb-8 relative shadow-inner">
+        <div class="max-w-7xl mx-auto px-4 grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-12 mb-12">
+            <div data-aos="fade-up" data-aos-delay="0">
+                 <img src="images/graphuralogo.png" alt="Graphura" class="h-16 mb-4 rounded p-1 transition-colors">
+                 <p class="text-gray-600 text-sm leading-relaxed">Helping you shortlist top talent using AI — fast, fair and focused.</p>
+            </div>
+            <div data-aos="fade-up" data-aos-delay="100">
+                <h3 class="text-gray-900 font-bold mb-4 border-b border-brand-primary/50 inline-block pb-1">Quick Links</h3>
+                <ul class="space-y-3 text-sm text-gray-600">
+                    <li><a href="index.html#home" class="hover:text-brand-primary hover:pl-2 transition-all duration-300 flex items-center"><i class="fas fa-chevron-right text-xs mr-2 opacity-0 hover:opacity-100"></i>Home</a></li>
+                    <li><a href="Recruiter.html" class="hover:text-brand-primary hover:pl-2 transition-all duration-300 flex items-center"><i class="fas fa-chevron-right text-xs mr-2 opacity-0 hover:opacity-100"></i>Recruiter Dashboard</a></li>
+                    
+                    <li><a href="dashboard.html" class="hover:text-brand-primary hover:pl-2 transition-all duration-300 flex items-center"><i class="fas fa-chevron-right text-xs mr-2 opacity-0 hover:opacity-100"></i>Analytics</a></li>
+                    </ul>
+            </div>
+            <div data-aos="fade-up" data-aos-delay="200">
+                <h3 class="text-gray-900 font-bold mb-4 border-b border-brand-primary/50 inline-block pb-1">Resources</h3>
+                <ul class="space-y-3 text-sm text-gray-600">
+                    <li><a href="#" class="hover:text-brand-primary hover:pl-2 transition-all duration-300 flex items-center"><i class="fas fa-chevron-right text-xs mr-2 opacity-0 hover:opacity-100"></i>Documentation</a></li>
+                    <li><a href="#" class="hover:text-brand-primary hover:pl-2 transition-all duration-300 flex items-center"><i class="fas fa-chevron-right text-xs mr-2 opacity-0 hover:opacity-100"></i>Support</a></li>
+                    <li><a href="#" class="hover:text-brand-primary hover:pl-2 transition-all duration-300 flex items-center"><i class="fas fa-chevron-right text-xs mr-2 opacity-0 hover:opacity-100"></i>Privacy Policy</a></li>
+                </ul>
+            </div>
+            <div data-aos="fade-up" data-aos-delay="300">
+                <h3 class="text-gray-900 font-bold mb-4 border-b border-brand-primary/50 inline-block pb-1">Contact</h3>
+                <p class="text-gray-600 text-sm mb-6">support@graphura.in<br>+91 73780 21327</p>
+                <div class="flex space-x-4">
+                    <a href="#" class="group w-10 h-10 rounded-full bg-gray-200 flex items-center justify-center text-gray-600 hover:bg-brand-primary hover:text-white transition-all duration-300 transform hover:scale-110 hover:-translate-y-1"><i class="fab fa-twitter group-hover:rotate-12 transition-transform"></i></a>
+                    <a href="#" class="group w-10 h-10 rounded-full bg-gray-200 flex items-center justify-center text-gray-600 hover:bg-brand-primary hover:text-white transition-all duration-300 transform hover:scale-110 hover:-translate-y-1"><i class="fab fa-linkedin-in group-hover:rotate-12 transition-transform"></i></a>
+                    <a href="#" class="group w-10 h-10 rounded-full bg-gray-200 flex items-center justify-center text-gray-600 hover:bg-brand-primary hover:text-white transition-all duration-300 transform hover:scale-110 hover:-translate-y-1"><i class="fab fa-facebook-f group-hover:rotate-12 transition-transform"></i></a>
+                </div>
+            </div>
+        </div>
+        
+    </footer>
+    <div class="text-center text-gray-500 text-sm border-t border-gray-200 p-8 pt-8 ">
+    © <span id="year"></span> Graphura India Private Limited — All rights reserved.
+    </div>
+    <button id="scrollTopBtn" onclick="scrollToTop()" class="fixed bottom-8 right-8 z-50 bg-brand-primary text-white p-4 rounded-full shadow-lg translate-y-24 opacity-0 transition-all duration-500 hover:bg-blue-600 hover:shadow-brand-primary/50 focus:outline-none transform hover:scale-110 hover:-translate-y-1">
+        <i class="fas fa-arrow-up"></i>
+    </button>
+
+    <div id="overlay" class="fixed inset-0 bg-black/80 backdrop-blur-sm z-[60] hidden transition-opacity duration-300" onclick="closePopup()"></div>
+
+    <div id="loginPopup" class="fixed top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 bg-brand-card w-full max-w-md p-8 rounded-2xl shadow-2xl shadow-black/50 z-[70] hidden scale-90 opacity-0 transition-all duration-300 border border-gray-700">
+        <button onclick="closePopup()" class="absolute top-4 right-4 text-gray-400 hover:text-white text-xl transition-colors"><i class="fas fa-times"></i></button>
+        <h2 class="text-2xl font-bold text-white text-center mb-2">Welcome Back</h2>
+        <p class="text-gray-400 text-center text-sm mb-6">Login to access your dashboard</p>
+
+        <div class="space-y-4">
+            <input type="email" id="login-email" placeholder="Email Address" class="w-full bg-brand-dark border border-gray-700 rounded-lg p-3 text-white focus:border-brand-primary focus:ring-2 focus:ring-brand-primary/20 focus:outline-none transition-all">
+            <input type="password" id="login-password" placeholder="Password" class="w-full bg-brand-dark border border-gray-700 rounded-lg p-3 text-white focus:border-brand-primary focus:ring-2 focus:ring-brand-primary/20 focus:outline-none transition-all">
+        </div>
+
+        <button onclick="handleLogin()" class="w-full mt-6 bg-brand-primary hover:bg-blue-600 text-white font-bold py-3 rounded-lg transition-all shadow-lg hover:shadow-brand-primary/30 transform hover:-translate-y-0.5">Login</button>
+        <p class="text-center text-gray-400 text-sm mt-4">Don't have an account? <a href="#" onclick="openSignup(true); return false;" class="text-brand-primary hover:text-brand-accent hover:underline transition-colors">Sign up</a></p>
+    </div>
+
+    <div id="signupPopup" class="fixed top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 bg-brand-card w-full max-w-md p-8 rounded-2xl shadow-2xl shadow-black/50 z-[70] hidden scale-90 opacity-0 transition-all duration-300 border border-gray-700">
+        <button onclick="closePopup()" class="absolute top-4 right-4 text-gray-400 hover:text-white text-xl transition-colors"><i class="fas fa-times"></i></button>
+        <h2 class="text-2xl font-bold text-white text-center mb-2">Create Account</h2>
+        <p class="text-gray-400 text-center text-sm mb-6">Join Graphura today</p>
+
+        <div class="space-y-4">
+            <input type="text" id="signup-name" placeholder="Full Name" class="w-full bg-brand-dark border border-gray-700 rounded-lg p-3 text-white focus:border-brand-primary focus:ring-2 focus:ring-brand-primary/20 focus:outline-none transition-all">
+            <input type="email" id="signup-email" placeholder="Email Address" class="w-full bg-brand-dark border border-gray-700 rounded-lg p-3 text-white focus:border-brand-primary focus:ring-2 focus:ring-brand-primary/20 focus:outline-none transition-all">
+            <input type="password" id="signup-password" placeholder="Password" class="w-full bg-brand-dark border border-gray-700 rounded-lg p-3 text-white focus:border-brand-primary focus:ring-2 focus:ring-brand-primary/20 focus:outline-none transition-all">
+        </div>
+
+        <!-- Error container for signup validation -->
+        <div id="signupError" class="text-red-400 text-sm mt-3 mb-1 hidden" role="alert" aria-live="polite"></div>
+
+        <button onclick="handleSignup()" class="w-full mt-6 bg-brand-primary hover:bg-blue-600 text-white font-bold py-3 rounded-lg transition-all shadow-lg hover:shadow-brand-primary/30 transform hover:-translate-y-0.5">Sign Up</button>
+        <p class="text-center text-gray-400 text-sm mt-4">Already a member? <a href="#" onclick="openLogin(true); return false;" class="text-brand-primary hover:text-brand-accent hover:underline transition-colors">Login</a></p>
+    </div> 
+
+    <script src="https://unpkg.com/aos@2.3.1/dist/aos.js"></script>
+    <script src="Recruiter.js"></script>
+    <script src="nav.js"></script>
+    
+    </body>
+</html>

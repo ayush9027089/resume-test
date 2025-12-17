@@ -1,62 +1,43 @@
 /* nav.js */
 
 document.addEventListener('DOMContentLoaded', () => {
-    // 1. Load the Navbar
     includeHTML('nav-bar.html', 'nav-placeholder').then(() => {
-        // 2. Once Navbar is loaded, update UI based on login state
         updateNavbarUI();
     });
-
-    // Initialize AOS
-    if (typeof AOS !== 'undefined') {
-        AOS.init();
-    }
+    if (typeof AOS !== 'undefined') AOS.init();
 });
 
-// Function to load external HTML
 async function includeHTML(url, elementId) {
     const placeholder = document.getElementById(elementId);
     if (!placeholder) return;
     try {
         const response = await fetch(url);
-        if (response.ok) {
-            placeholder.innerHTML = await response.text();
-        }
+        if (response.ok) placeholder.innerHTML = await response.text();
     } catch (error) {
         console.error(`Error loading ${url}:`, error);
     }
 }
 
-// --- CORE UI UPDATE LOGIC ---
 function updateNavbarUI() {
     const token = localStorage.getItem('jwtToken');
-    
-    // Desktop Elements
     const authButtons = document.getElementById('nav-auth-buttons');
     const userProfile = document.getElementById('nav-user-profile');
-    
-    // Mobile Elements
     const mobileAuth = document.getElementById('mobile-auth-buttons');
     const mobileProfile = document.getElementById('mobile-user-profile');
 
     if (token) {
-        // LOGGED IN: Hide Login/Signup, Show My Account
-        if (authButtons) authButtons.classList.add('hidden');
-        if (userProfile) userProfile.classList.remove('hidden');
-        
-        if (mobileAuth) mobileAuth.classList.add('hidden');
-        if (mobileProfile) mobileProfile.classList.remove('hidden');
+        authButtons?.classList.add('hidden');
+        userProfile?.classList.remove('hidden');
+        mobileAuth?.classList.add('hidden');
+        mobileProfile?.classList.remove('hidden');
     } else {
-        // LOGGED OUT: Show Login/Signup, Hide My Account
-        if (authButtons) authButtons.classList.remove('hidden');
-        if (userProfile) userProfile.classList.add('hidden');
-        
-        if (mobileAuth) mobileAuth.classList.remove('hidden');
-        if (mobileProfile) mobileProfile.classList.add('hidden');
+        authButtons?.classList.remove('hidden');
+        userProfile?.classList.add('hidden');
+        mobileAuth?.classList.remove('hidden');
+        mobileProfile?.classList.add('hidden');
     }
 }
 
-// --- Navigation Guard ---
 function handleRecruiterClick() {
     const token = localStorage.getItem('jwtToken');
     if (token) {
@@ -67,16 +48,18 @@ function handleRecruiterClick() {
     }
 }
 
-// --- LOGIN LOGIC (Updates Name) ---
 async function handleLogin() {
-    
+    const email = document.getElementById('login-email').value.trim();
+    const password = document.getElementById('login-password').value.trim();
+
+    // VALIDATION [New Change]
+    if (!email || !password) {
+        alert("Please enter both email and password.");
+        return;
+    }
+
+    const requestBody = { email, password };
     const loginUrl = `${CONFIG.API_BASE_URL}/login`;
-    const email = document.getElementById('login-email').value;
-    const password = document.getElementById('login-password').value;
-
-    const requestBody = { email: email, password: password };
-
-    
 
     try {
         const response = await fetch(loginUrl, {
@@ -87,26 +70,12 @@ async function handleLogin() {
 
         if (response.ok) {
             const data = await response.json();
-            
-            // 1. Save Token
             localStorage.setItem('jwtToken', data.token);
-
-            // NEW: Save the real ID and Name from backend
-            localStorage.setItem('userId', data.userId); 
-            localStorage.setItem('userName', data.name);
-
-            // 2. NAME HACK: Since backend doesn't return name, extract from email
-            // Example: ayush@gmail.com -> Ayush
-            const derivedName = email.split('@')[0];
-            // Capitalize first letter
-            const formattedName = derivedName.charAt(0).toUpperCase() + derivedName.slice(1);
-            localStorage.setItem('userName', formattedName);
-
-            // 3. Update UI and Redirect
-            updateNavbarUI();
+            localStorage.setItem('userId', data.userId);
+            localStorage.setItem('userName', data.name || email.split('@')[0]);
+            
             alert("Login successful!");
             window.location.href = "profile.html";
-            
         } else {
             const errorMessage = await response.text();
             alert("Login Failed: " + errorMessage);
@@ -117,13 +86,18 @@ async function handleLogin() {
     }
 }
 
-// --- SIGNUP LOGIC (Saves Real Name) ---
 async function handleSignup() {
-    const name = document.getElementById('signup-name').value;
-    const email = document.getElementById('signup-email').value;
-    const password = document.getElementById('signup-password').value;
+    const name = document.getElementById('signup-name').value.trim();
+    const email = document.getElementById('signup-email').value.trim();
+    const password = document.getElementById('signup-password').value.trim();
 
-    const requestBody = { name: name, email: email, password: password };
+    // VALIDATION [New Change]
+    if (!name || !email || !password) {
+        alert("Please complete all fields to sign up.");
+        return;
+    }
+
+    const requestBody = { name, email, password };
     const apiUrl = `${CONFIG.API_BASE_URL}/register`;
 
     try {
@@ -134,15 +108,6 @@ async function handleSignup() {
         });
 
         if (response.ok) {
-            const data = await response.json();
-            
-            // On signup, we KNOW the real name, so save it!
-            if(data.token) {
-                localStorage.setItem('jwtToken', data.token);
-                localStorage.setItem('userId', data.userId);
-                localStorage.setItem('userName', data.name);
-            }
-            
             alert('Registration successful! Please login.');
             closePopup();
             openLogin();
@@ -156,7 +121,7 @@ async function handleSignup() {
     }
 }
 
-// --- MODAL & LOGOUT UTILS ---
+// Modal Utils
 function toggleModal(modalId, show) {
     const overlay = document.getElementById('overlay');
     const modal = document.getElementById(modalId);
@@ -193,17 +158,12 @@ function openSignup(isSwitch) {
     if(isSwitch) toggleModal('loginPopup', false);
     toggleModal('signupPopup', true);
 }
-function toggleMobileMenu() {
-    const menu = document.getElementById('mobile-menu');
-    if(menu) menu.classList.toggle('hidden');
-}
 
-// Expose functions globally
+// Global Exports
 window.handleRecruiterClick = handleRecruiterClick;
 window.handleLogin = handleLogin;
 window.handleSignup = handleSignup;
 window.openLogin = openLogin;
 window.openSignup = openSignup;
 window.closePopup = closePopup;
-window.toggleMobileMenu = toggleMobileMenu;
 window.updateNavbarUI = updateNavbarUI;

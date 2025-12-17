@@ -1,3 +1,5 @@
+// - index.js
+
 // Init AOS
 AOS.init({
   duration: 800,
@@ -8,21 +10,6 @@ AOS.init({
 });
 
 document.getElementById("year").textContent = new Date().getFullYear();
-
-// --- Auto Popup Logic ---
-/* REMOVED: The automatic signup popup logic was here. 
-           The code below is now empty, preventing the auto-popup. 
-        window.addEventListener('load', function() {
-            // Opens signup popup automatically 1.5 seconds after page load
-            setTimeout(() => {
-                // Only open if no popup is currently open
-                const overlay = document.getElementById('overlay');
-                if (overlay.classList.contains('hidden')) {
-                    openSignup(false);
-                }
-            }, 1500); 
-        });
-        */
 
 // --- Scroll to Top Logic ---
 const scrollTopBtn = document.getElementById("scrollTopBtn");
@@ -96,113 +83,81 @@ function toggleMobileMenu() {
 
 // --- NEW API CALL LOGIC ---
 
-/**
- * Handles the Sign Up form submission, calling the /register API endpoint.
- */
-
 async function handleSignup() {
-  console.log("index.js");
-  
-  // 1. Get input values from the new IDs in index.html
-  const name = document.getElementById("signup-name").value;
-  const email = document.getElementById("signup-email").value;
-  const password = document.getElementById("signup-password").value;
+  const name = document.getElementById("signup-name").value.trim();
+  const email = document.getElementById("signup-email").value.trim();
+  const password = document.getElementById("signup-password").value.trim();
 
-  // The RegisterRequest in your Spring Boot likely requires these fields.
-  const requestBody = {
-    name: name,
-    email: email,
-    password: password,
-  };
+  // VALIDATION [New Change]
+  if (!name || !email || !password) {
+    alert("Please fill in all details to sign up.");
+    return;
+  }
 
-  // Endpoint URL (Assuming Spring Boot is running on the same host/port)
+  const requestBody = { name, email, password };
   const apiUrl = `${CONFIG.API_BASE_URL}/register`;
 
   try {
-    // 2. Make the API Call using fetch
     const response = await fetch(apiUrl, {
       method: "POST",
-      headers: {
-        // Crucial for sending JSON data
-        "Content-Type": "application/json",
-      },
-      body: JSON.stringify(requestBody), // Convert JS object to JSON string
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify(requestBody),
     });
-    // 3. Handle the response
+    
     if (response.ok) {
-      // Registration successful (Status 200 OK)
-      const data = await response.json();
-      console.log("Registration Successful. Received Token:", data.token);
-
       alert("Registration successful! Please login.");
-
-      // Close signup and open login popup
       closePopup();
       openLogin();
     } else {
-      // Registration failed (e.g., Status 400 Bad Request)
-      const error = await response.text(); // Get the plain error message from the body
-      console.error("Registration Failed:", error);
+      const error = await response.text();
       alert("Registration Failed: " + error);
     }
   } catch (error) {
-    // Network or unexpected error
     console.error("Network Error:", error);
-    alert("An unexpected network error occurred. Please try again.");
+    alert("An unexpected network error occurred.");
   }
 }
 
 const loginUrl = `${CONFIG.API_BASE_URL}/login`;
 
 async function handleLogin() {
-  console.log("index.js");
-  
-  const email = document.getElementById("login-email").value;
-  const password = document.getElementById("login-password").value;
+  const email = document.getElementById("login-email").value.trim();
+  const password = document.getElementById("login-password").value.trim();
 
-  const requestBody = {
-    email: email,
-    password: password,
-  };
+  // VALIDATION [New Change]
+  if (!email || !password) {
+    alert("Please enter both email and password to login.");
+    return;
+  }
+
+  const requestBody = { email, password };
 
   try {
     const response = await fetch(loginUrl, {
       method: "POST",
-      headers: {
-        "Content-Type": "application/json",
-      },
+      headers: { "Content-Type": "application/json" },
       body: JSON.stringify(requestBody),
     });
 
     if (response.ok) {
       const data = await response.json();
-
       localStorage.setItem("jwtToken", data.token);
-
-      console.log("Login Successful!");
       window.location.href = "index.html";
-      alert("login successfull");
+      alert("Login successful!");
     } else {
       const errorMessage = await response.text();
       alert("Login Failed: " + errorMessage);
     }
   } catch (error) {
     console.error("Error:", error);
-    alert("Something went wrong. Please check the console.");
+    alert("Something went wrong.");
   }
 }
 
 document.addEventListener('DOMContentLoaded', () => {
     const urlParams = new URLSearchParams(window.location.search);
-    const shouldOpenLogin = urlParams.get('openLogin');
-
-    if (shouldOpenLogin === 'true') {
-        // Clear the param from URL so it doesn't reopen on refresh
+    if (urlParams.get('openLogin') === 'true') {
         window.history.replaceState({}, document.title, window.location.pathname);
-        
-        // Wait a brief moment for the DOM/Modal logic to be ready
-        setTimeout(() => {
-            openLogin(); 
-        }, 500);
+        setTimeout(() => { openLogin(); }, 500);
     }
 });
