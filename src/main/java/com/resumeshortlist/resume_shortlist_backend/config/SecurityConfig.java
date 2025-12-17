@@ -10,11 +10,13 @@ import org.springframework.security.config.http.SessionCreationPolicy;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.security.web.SecurityFilterChain;
+import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.web.cors.CorsConfiguration;
 import org.springframework.web.cors.CorsConfigurationSource;
 import org.springframework.web.cors.UrlBasedCorsConfigurationSource;
-
+import com.resumeshortlist.resume_shortlist_backend.filter.JwtAuthenticationFilter;
 import java.util.Arrays;
 
 @Configuration
@@ -23,6 +25,9 @@ public class SecurityConfig {
 
     @Value("${cors.allowed.origins}")
     private String allowedOrigins;
+
+    @Autowired
+    private JwtAuthenticationFilter jwtAuthenticationFilter;
     
     @Bean
     public SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
@@ -38,12 +43,12 @@ public class SecurityConfig {
 
                         // Your existing allowed APIs
                         .requestMatchers("/api/auth/**").permitAll()
-                        .requestMatchers("/api/resumes/upload/**").permitAll()
+                        .requestMatchers("/api/resumes/**").permitAll() 
                         .requestMatchers("/api/job-postings/**").permitAll()
                         .requestMatchers("/api/candidates/**").permitAll()
-
                         .anyRequest().authenticated()
-                );
+                )
+                .addFilterBefore(jwtAuthenticationFilter, UsernamePasswordAuthenticationFilter.class);
 
         return http.build();
     }
