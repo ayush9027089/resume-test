@@ -15,6 +15,7 @@ import java.io.FileOutputStream;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
 import java.util.UUID;
 
 @RestController
@@ -38,6 +39,37 @@ public class JobPostingController {
     @GetMapping("/all")
     public List<JobPosting> getAllJobPostings() {
         return jobPostingService.getAllJobPostings();
+    }
+
+    // API: Create a job posting + required skills from recruiter domain/skills selection
+    @PostMapping("/domain-skills")
+    public ResponseEntity<?> createJobFromDomainAndSkills(
+            @RequestParam("userId") Long userId,
+            @RequestBody Map<String, Object> payload
+    ) {
+        try {
+            String title = (String) payload.getOrDefault("jobDomain", "Job");
+            Object rawSkills = payload.get("skills");
+
+            List<String> skills = new ArrayList<>();
+            if (rawSkills instanceof List<?>) {
+                for (Object o : (List<?>) rawSkills) {
+                    if (o != null) {
+                        skills.add(o.toString());
+                    }
+                }
+            }
+
+            JobPosting job = jobPostingService.createJobPostingWithSkills(title, userId, skills);
+
+            return ResponseEntity.ok(Map.of(
+                    "jobId", job.getId(),
+                    "title", job.getTitle(),
+                    "skillCount", skills.size()
+            ));
+        } catch (Exception e) {
+            return ResponseEntity.status(500).body("Failed to create job with skills: " + e.getMessage());
+        }
     }
 
     // 🎯 API #5: Get single job by ID

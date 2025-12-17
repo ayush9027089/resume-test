@@ -29,6 +29,17 @@ public class ResumeController {
             @RequestPart("files") MultipartFile[] files) {
         try {
             List<Resume> saved = FileUploadService.uploadMultipleResumes(userId, files);
+
+            // After upload, trigger Gemini-based parsing & extraction for each resume.
+            for (Resume r : saved) {
+                try {
+                    resumeParsingService.parseAndSaveResume(r.getId());
+                } catch (Exception ex) {
+                    // Do not fail the whole upload if parsing a single resume fails.
+                    // You can log this in a real application.
+                }
+            }
+
             return ResponseEntity.ok(saved);
         } catch (Exception e) {
             return ResponseEntity.status(500).body("Upload failed: " + e.getMessage());

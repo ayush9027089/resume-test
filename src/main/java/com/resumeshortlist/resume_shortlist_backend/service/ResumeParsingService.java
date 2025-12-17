@@ -27,6 +27,8 @@ public class ResumeParsingService {
     @Autowired private EducationRepository educationRepository;
     @Autowired private WorkExperienceRepository workExperienceRepository;
     @Autowired private ProjectRepository projectRepository;
+    @Autowired private CertificationRepository certificationRepository;
+    @Autowired private ExtractedSkillRepository extractedSkillRepository;
 
     @Value("${gemini.api.key}") // You must add this to application.properties
     private String geminiApiKey;
@@ -108,22 +110,107 @@ public class ResumeParsingService {
                 projectRepository.save(proj);
             }
         }
+
+        // 9. Save Certifications (if provided by Gemini)
+        if (rootNode.has("certifications")) {
+            for (JsonNode node : rootNode.get("certifications")) {
+                Certification cert = new Certification();
+                cert.setCandidate(candidate);
+                cert.setName(getText(node, "name"));
+                cert.setIssuer(getText(node, "issuer"));
+                cert.setIssueDate(getDate(node, "issueDate"));
+                cert.setCertificateLink(getText(node, "certificateLink"));
+                certificationRepository.save(cert);
+            }
+        }
+
+        // 10. Save Extracted Skills (normalized, confidence-scored)
+        if (rootNode.has("skills")) {
+            for (JsonNode node : rootNode.get("skills")) {
+                String skillName = getText(node, "skillName");
+                if (skillName == null || skillName.isBlank()) continue;
+
+                ExtractedSkill es = new ExtractedSkill();
+                es.setCandidate(candidate);
+                es.setSkillName(skillName);
+                es.setCategory(getText(node, "category"));
+                es.setConfidenceScore(getFloat(node, "confidenceScore"));
+                extractedSkillRepository.save(es);
+            }
+        }
     }
 
     // --- GEMINI API CALLER ---
     private String callGeminiApi(String resumeText) {
         String url = "https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash:generateContent?key=" + geminiApiKey;
 
-        // Strict JSON Schema Prompt
-        String prompt = "You are a Resume Parser. Extract data from the following resume text into strict JSON format. " +
-                "Use EXACTLY these keys: " +
-                "{ 'name': '', 'email': '', 'phone': '', 'linkedinUrl': '', 'githubUrl': '', 'portfolioUrl': '', " +
-                "'education': [{ 'degree': '', 'institution': '', 'fieldOfStudy': '', 'startYear': int, 'endYear': int, 'gpa': float }], " +
-                "'workExperience': [{ 'jobTitle': '', 'company': '', 'description': '', 'startDate': 'YYYY-MM-DD', 'endDate': 'YYYY-MM-DD', 'isCurrent': boolean }], " +
-                "'projects': [{ 'title': '', 'description': '', 'techStack': '', 'githubLink': '', 'liveLink': '' }] " +
-                "} " +
-                "If a field is missing, use null. Dates must be YYYY-MM-DD. " +
-                "RESUME TEXT: " + resumeText;
+        // Strict JSON Schema Prompt (extended with certifications + skills)
+        String prompt =
+                "You are a resume parser. Extract structured data from the resume text into STRICT JSON.\n" +
+                "Rules:\n" +
+                "- Output ONLY JSON. No markdown, no comments.\n" +
+                "- Use EXACTLY these top-level keys: name, email, phone, linkedinUrl, githubUrl, portfolioUrl, " +
+                "education, workExperience, projects, certifications, skills.\n" +
+                "- Use ONLY information explicitly present in the resume; if a value is missing, use null (for scalars) " +
+                "or an empty array [] (for lists).\n" +
+                "- Dates must be in 'YYYY-MM-DD' format when possible.\n" +
+                "\n" +
+                "Expected JSON shape:\n" +
+                "{\n" +
+                "  \"name\": string | null,\n" +
+                "  \"email\": string | null,\n" +
+                "  \"phone\": string | null,\n" +
+                "  \"linkedinUrl\": string | null,\n" +
+                "  \"githubUrl\": string | null,\n" +
+                "  \"portfolioUrl\": string | null,\n" +
+                "  \"education\": [\n" +
+                "    {\n" +
+                "      \"degree\": string | null,\n" +
+                "      \"institution\": string | null,\n" +
+                "      \"fieldOfStudy\": string | null,\n" +
+                "      \"startYear\": number | null,\n" +
+                "      \"endYear\": number | null,\n" +
+                "      \"gpa\": number | null\n" +
+                "    }\n" +
+                "  ],\n" +
+                "  \"workExperience\": [\n" +
+                "    {\n" +
+                "      \"jobTitle\": string | null,\n" +
+                "      \"company\": string | null,\n" +
+                "      \"description\": string | null,\n" +
+                "      \"startDate\": string | null,\n" +
+                "      \"endDate\": string | null,\n" +
+                "      \"isCurrent\": boolean | null\n" +
+                "    }\n" +
+                "  ],\n" +
+                "  \"projects\": [\n" +
+                "    {\n" +
+                "      \"title\": string | null,\n" +
+                "      \"description\": string | null,\n" +
+                "      \"techStack\": string | null,\n" +
+                "      \"githubLink\": string | null,\n" +
+                "      \"liveLink\": string | null\n" +
+                "    }\n" +
+                "  ],\n" +
+                "  \"certifications\": [\n" +
+                "    {\n" +
+                "      \"name\": string | null,\n" +
+                "      \"issuer\": string | null,\n" +
+                "      \"issueDate\": string | null,\n" +
+                "      \"certificateLink\": string | null\n" +
+                "    }\n" +
+                "  ],\n" +
+                "  \"skills\": [\n" +
+                "    {\n" +
+                "      \"skillName\": string,\n" +
+                "      \"category\": string | null,\n" +
+                "      \"confidenceScore\": number | null\n" +
+                "    }\n" +
+                "  ]\n" +
+                "}\n" +
+                "\n" +
+                "If you are unsure about a field, set it to null or []. Do NOT invent data.\n" +
+                "RESUME TEXT:\n" + resumeText;
 
         // Construct Request Body
         Map<String, Object> content = new HashMap<>();
