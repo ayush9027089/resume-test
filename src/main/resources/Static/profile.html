@@ -79,118 +79,28 @@
     <div id="nav-placeholder"></div>
 
     <main class="pt-32 pb-16 bg-brand-dark">
-        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-            <div class="grid lg:grid-cols-3 gap-8">
-                
-                <div class="lg:col-span-1 space-y-8">
-                    <div class="bg-brand-card p-6 rounded-2xl border border-gray-700 shadow-xl" data-aos="fade-up">
-                        <div class="flex flex-col items-center">
-                            <div id="profile-photo-container" class="relative w-32 h-32 rounded-full bg-brand-primary/20 flex items-center justify-center mb-4 border-4 border-brand-primary/50 group cursor-pointer" onclick="document.getElementById('photo-upload').click()">
-                                <input type="file" id="photo-upload" accept="image/*" class="hidden">
-                                <img id="profile-photo" src="" alt="Profile" class="w-full h-full object-cover rounded-full hidden">
-                                <i id="photo-placeholder" class="fas fa-camera text-4xl text-brand-primary/80"></i>
-                                <div id="photo-edit-overlay" class="absolute inset-0 rounded-full flex items-center justify-center bg-black/50 opacity-0 group-hover:opacity-100 transition-opacity">
-                                    <i class="fas fa-edit text-white text-xl"></i>
-                                </div>
-                            </div>
-                            <h1 id="profile-name" class="text-2xl font-bold text-white">Loading...</h1>
-                            <p id="profile-title" class="text-brand-accent font-medium">Senior Software Engineer</p>
-                            <p id="profile-location" class="text-gray-400 text-sm mt-1">San Francisco Bay Area</p>
-                            <button onclick="openEditProfileModal()" class="mt-4 px-6 py-2 rounded-full bg-brand-primary text-white font-semibold hover:bg-blue-600 transition-colors text-sm">
-                                Edit Profile
-                            </button>
-                        </div>
-                        <div class="mt-6 pt-4 border-t border-gray-700 text-sm text-gray-400">
-                            <p class="flex justify-between items-center mb-2">Connections: <span class="text-white font-semibold">500+</span></p>
-                            <p class="flex justify-between items-center">Profile Views (last 90 days): <span class="text-white font-semibold">1,250</span></p>
-                        </div>
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+        <div class="flex justify-center">
+            
+            <div class="w-full max-w-md space-y-8">
+                <div class="bg-brand-card p-6 rounded-2xl border border-gray-700 shadow-xl" data-aos="fade-up">
+                    <div class="flex flex-col items-center">
+                        <h1 id="profile-name" class="text-2xl font-bold text-white">Loading...</h1>
+                        <button onclick="openEditProfileModal()" class="mt-4 px-6 py-2 rounded-full bg-brand-primary text-white font-semibold hover:bg-blue-600 transition-colors text-sm">
+                            Edit Profile
+                        </button>
                     </div>
-                    <div class="bg-brand-card p-6 rounded-2xl border border-gray-700 shadow-xl" data-aos="fade-up" data-aos-delay="100">
-                        <h3 class="text-xl font-bold text-white mb-4">Quick Actions</h3>
-                        <ul class="space-y-3">
-                            <li><a href="#" class="flex items-center text-gray-400 hover:text-brand-primary transition-colors"><i class="fas fa-bookmark w-5 mr-3"></i> Saved Jobs</a></li>
-                            <li><a href="#" class="flex items-center text-gray-400 hover:text-brand-primary transition-colors"><i class="fas fa-file-alt w-5 mr-3"></i> My Resumes (Upload/Manage)</a></li>
-                            <li><a href="#" class="flex items-center text-gray-400 hover:text-brand-primary transition-colors"><i class="fas fa-chart-bar w-5 mr-3"></i> Career Insights</a></li>
-                            <li><a href="#" class="flex items-center text-gray-400 hover:text-brand-primary transition-colors"><i class="fas fa-cog w-5 mr-3"></i> Account Settings</a></li>
-                            <li>
-                                <a href="javascript:void(0)" onclick="handleLogout()" class="flex items-center text-red-400 hover:text-red-500 transition-colors pt-3 border-t border-gray-700 mt-3">
-                                    <i class="fas fa-sign-out-alt w-5 mr-3"></i> Logout
-                                </a>
-                            </li>
-                        </ul>
-                    </div>
-                </div>
-
-                <div class="lg:col-span-2 space-y-8">
                     
-                    <div class="bg-brand-card p-6 rounded-2xl border border-gray-700 shadow-xl" data-aos="fade-left">
-                        <h2 class="text-2xl font-bold text-white mb-4">About</h2>
-                        <p id="profile-about" class="text-gray-400 leading-relaxed">Highly-motivated Senior Software Engineer with 8+ years of experience in developing and deploying large-scale web applications. Proficient in React, Node.js, and cloud platforms like AWS. Passionate about leveraging AI for process optimization. Seeking new opportunities to lead and mentor teams in a fast-paced environment.</p>
-                        <button class="text-brand-primary text-sm font-semibold mt-3 hover:underline">See more</button>
-                    </div>
-
-                    <div class="bg-brand-card p-6 rounded-2xl border border-gray-700 shadow-xl" data-aos="fade-left" data-aos-delay="100">
-                        <h2 class="text-2xl font-bold text-white mb-4">Experience</h2>
-                        
-                        <div id="experience-container" class="space-y-6">
-                            <div class="flex items-start">
-                                <div class="w-10 h-10 bg-brand-primary/10 rounded-full flex-shrink-0 flex items-center justify-center mt-1 mr-4">
-                                    <i class="fas fa-briefcase text-brand-primary"></i>
-                                </div>
-                                <div>
-                                    <h3 class="text-lg font-semibold text-white">Senior Software Engineer</h3>
-                                    <p class="text-gray-400 text-sm">TechCorp Innovations | Jan 2020 – Present (5 years)</p>
-                                    <p class="text-gray-500 text-sm mt-1">Led a team of 5 engineers to re-architect the main customer dashboard using React and Redux, resulting in a 30% reduction in load time.</p>
-                                </div>
-                            </div>
-
-                            <div class="flex items-start">
-                                <div class="w-10 h-10 bg-brand-primary/10 rounded-full flex-shrink-0 flex items-center justify-center mt-1 mr-4">
-                                    <i class="fas fa-code text-brand-primary"></i>
-                                </div>
-                                <div>
-                                    <h3 class="text-lg font-semibold text-white">Software Developer</h3>
-                                    <p class="text-gray-400 text-sm">WebSolutions Inc. | Jun 2016 – Dec 2019 (3 years 7 months)</p>
-                                    <p class="text-gray-500 text-sm mt-1">Developed and maintained RESTful APIs for mobile application integration using Spring Boot and PostgreSQL.</p>
-                                </div>
-                            </div>
-                        </div>
-                        <button onclick="openAddModal('experience')" class="text-brand-primary text-sm font-semibold mt-4 hover:underline">Add Experience</button>
-                    </div>
-
-                    <div class="bg-brand-card p-6 rounded-2xl border border-gray-700 shadow-xl" data-aos="fade-left" data-aos-delay="200">
-                        <h2 class="text-2xl font-bold text-white mb-4">Education</h2>
-                        <div id="education-container" class="space-y-6">
-                            <div class="flex items-start">
-                                <div class="w-10 h-10 bg-brand-primary/10 rounded-full flex-shrink-0 flex items-center justify-center mt-1 mr-4">
-                                    <i class="fas fa-graduation-cap text-brand-primary"></i>
-                                </div>
-                                <div>
-                                    <h3 class="text-lg font-semibold text-white">Master of Science in Computer Science</h3>
-                                    <p class="text-gray-400 text-sm">Stanford University | 2014 – 2016</p>
-                                </div>
-                            </div>
-                        </div>
-                         <button onclick="openAddModal('education')" class="text-brand-primary text-sm font-semibold mt-4 hover:underline">Add Education</button>
-                    </div>
-
-                    <div class="bg-brand-card p-6 rounded-2xl border border-gray-700 shadow-xl" data-aos="fade-left" data-aos-delay="300">
-                        <h2 class="text-2xl font-bold text-white mb-4">Skills & Endorsements</h2>
-                        <div id="skills-container" class="flex flex-wrap gap-3">
-                            <span class="px-3 py-1 bg-brand-primary/20 text-brand-accent rounded-full text-sm font-medium">React <i class="fas fa-check-circle ml-1"></i></span>
-                            <span class="px-3 py-1 bg-brand-primary/20 text-brand-accent rounded-full text-sm font-medium">Node.js <i class="fas fa-check-circle ml-1"></i></span>
-                            <span class="px-3 py-1 bg-brand-primary/20 text-brand-accent rounded-full text-sm font-medium">AWS</span>
-                            <span class="px-3 py-1 bg-brand-primary/20 text-brand-accent rounded-full text-sm font-medium">Spring Boot</span>
-                            <span class="px-3 py-1 bg-brand-primary/20 text-brand-accent rounded-full text-sm font-medium">PostgreSQL</span>
-                            <span class="px-3 py-1 bg-brand-primary/20 text-brand-accent rounded-full text-sm font-medium">Agile Methodologies</span>
-                        </div>
-                        <button onclick="openAddModal('skill')" class="text-brand-primary text-sm font-semibold mt-4 hover:underline">Add Skill</button>
-                    </div>
-
+                    
+                    <a href="javascript:void(0)" onclick="handleLogout()" class="flex items-center justify-center text-red-400 hover:text-red-500 transition-colors pt-3 border-t border-gray-700 mt-3 w-full">
+    <i class="fas fa-sign-out-alt mr-2"></i> Logout
+</a>
                 </div>
             </div>
+
         </div>
-    </main>
+    </div>
+</main>
 
     <div id="edit-profile-modal" class="fixed inset-0 z-[60] hidden flex items-center justify-center bg-black/70 backdrop-blur-sm p-4 transition-opacity duration-300">
         <div class="bg-brand-dark p-8 rounded-2xl border border-gray-700 shadow-2xl w-full max-w-lg transform scale-95 opacity-0 transition-all duration-300" id="edit-modal-content">
