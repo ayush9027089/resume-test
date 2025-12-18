@@ -10,6 +10,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
+import java.util.Map;
 
 @Service
 public class JobPostingService {
@@ -21,6 +22,9 @@ public class JobPostingService {
 
     @Autowired
     private RequiredSkillRepository requiredSkillRepository;
+
+    @Autowired
+    private JobDescriptionParsingService jobDescriptionParsingService;
 
     public JobPosting createJobPosting(JobPosting jobPosting, Long userId) {
 
@@ -60,6 +64,37 @@ public class JobPostingService {
         }
 
         return savedJob;
+    }
+
+    public void saveRequiredSkills(Long jobPostingId, List<String> skillNames) {
+        JobPosting job = jobPostingRepository.findById(jobPostingId)
+                .orElseThrow(() -> new RuntimeException("Job Posting not found"));
+
+        // 1. Get Categories from Gemini
+        Map<String, String> categorizedSkills = jobDescriptionParsingService.categorizeSkills(skillNames);
+
+        // 2. Iterate and Save
+        for (String skillName : skillNames) {
+            String category = categorizedSkills.getOrDefault(skillName, "TECHNICAL").toUpperCase();
+
+            // Normalize category string for comparison
+            if (category.contains("SOFT")) category = "SOFT";
+            else if (category.contains("TOOL")) category = "TOOL";
+            else category = "TECHNICAL";
+
+            int weight = 8; // Default Technical
+            if ("TOOL".equals(category)) weight = 6;
+            else if ("SOFT".equals(category)) weight = 3;
+
+            RequiredSkill rs = new RequiredSkill();
+            rs.setJobPosting(job);
+            rs.setSkillName(skillName);
+            rs.setCategory(category);
+            rs.setIsRequired(true); // Default true
+            rs.setWeight(weight);
+
+            requiredSkillRepository.save(rs);
+        }
     }
     public List<JobPosting> getAllJobPostings() {
         return jobPostingRepository.findAll();

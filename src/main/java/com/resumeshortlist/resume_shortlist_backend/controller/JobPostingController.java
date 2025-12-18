@@ -46,6 +46,42 @@ public class JobPostingController {
         return jobPostingService.getAllJobPostings();
     }
 
+    //Save required-skills from ui
+    @PostMapping("/save-requirements")
+    public ResponseEntity<?> saveRequirements(@RequestBody Map<String, Object> payload) {
+        try {
+            Long jobId = null;
+            if (payload.get("jobId") != null) {
+                jobId = Long.valueOf(payload.get("jobId").toString());
+            }
+
+            List<String> skills = (List<String>) payload.get("skills");
+            String jobDomain = (String) payload.get("jobDomain");
+
+            if (jobId == null) {
+                if (payload.get("userId") == null) {
+                    return ResponseEntity.badRequest().body("User ID is required when creating a new job from scratch.");
+                }
+                Long userId = Long.valueOf(payload.get("userId").toString());
+
+                // Create a placeholder job using the Domain as the Title
+                JobPosting newJob = jobPostingService.createJobPostingWithSkills(jobDomain, userId, null);
+                jobId = newJob.getId();
+            }
+
+            if (skills == null || skills.isEmpty()) {
+                return ResponseEntity.badRequest().body("No skills provided");
+            }
+
+            jobPostingService.saveRequiredSkills(jobId, skills);
+            return ResponseEntity.ok("Skills saved successfully");
+
+        } catch (Exception e) {
+            return ResponseEntity.status(500).body("Failed to save requirements: " + e.getMessage());
+        }
+    }
+
+
     // API: Create a job posting + required skills from recruiter domain/skills selection
     @PostMapping("/domain-skills")
     public ResponseEntity<?> createJobFromDomainAndSkills(

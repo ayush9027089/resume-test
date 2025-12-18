@@ -195,6 +195,9 @@
                             <i class="fas fa-chevron-down text-sm"></i>
                         </div>
                     </div>
+                    <p id="domainErrorMsg" class="text-red-500 text-xs mt-2 hidden">
+                        <i class="fas fa-exclamation-circle"></i> Error: Selected domain does not match the uploaded Job Description.
+                    </p>
                 </div>
 
                 <div>
@@ -209,6 +212,12 @@
                     <div class="flex flex-wrap gap-2" id="skillTags">
                     </div>
                 </div>
+            </div>
+
+            <div class="mt-6 flex justify-end">
+                <button onclick="saveRequirements()" class="px-6 py-3 rounded-lg bg-brand-accent text-brand-dark font-bold shadow-lg hover:shadow-brand-accent/50 transform hover:-translate-y-1 transition text-center flex items-center gap-2">
+                    <i class="fas fa-save"></i> Save Requirements
+                </button>
             </div>
         </section>
 
