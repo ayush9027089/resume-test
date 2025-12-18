@@ -14,7 +14,7 @@ public class CandidateScore {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
-    private Float totalScore; // out of 100
+    private Integer totalScore; // out of 100
 
     private String status; // e.g., "SHORTLISTED", "CONSIDER", "REJECTED"
 

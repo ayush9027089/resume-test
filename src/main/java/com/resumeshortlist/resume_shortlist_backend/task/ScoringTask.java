@@ -55,7 +55,7 @@ public class ScoringTask {
             var cs = new CandidateScore();
             cs.setCandidate(cand);
             cs.setJobPosting(job);
-            cs.setTotalScore(round(score, 2));
+            cs.setTotalScore((int)round(score, 2));
             cs.setStatus(status);
             cs.setScoredAt(LocalDateTime.now());
             scoreRepo.save(cs);

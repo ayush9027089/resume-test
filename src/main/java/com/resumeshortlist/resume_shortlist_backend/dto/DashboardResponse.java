@@ -6,7 +6,7 @@ public record DashboardResponse(Long candidateId,
                                 String candidateName,
                                 String email,
                                 String resumeFile,
-                                Float totalScore,
+                                Integer totalScore,
                                 Integer rank,
                                 String status,
                                 LocalDateTime scoredAt) {

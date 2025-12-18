@@ -70,7 +70,7 @@ public class CandidateScoringService {
     // ✅ Generate CSV for shortlisted candidates
     public String generateShortlistedCsv(Long jobId) {
 
-        List<CandidateScore> scores = candidateScoreRepository.findTop10ByJobPostingId(jobId)
+        List<CandidateScore> scores = candidateScoreRepository.findTop10ByJobPostingIdOrderByTotalScoreDesc(jobId)
                 .stream()
                 .filter(cs -> "Selected".equalsIgnoreCase(cs.getStatus())) // sirf shortlisted
                 .toList();
