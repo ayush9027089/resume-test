@@ -70,7 +70,7 @@ public class JobPostingService {
         JobPosting job = jobPostingRepository.findById(jobPostingId)
                 .orElseThrow(() -> new RuntimeException("Job Posting not found"));
 
-        // 1. Get Categories from Gemini
+
         Map<String, String> categorizedSkills = jobDescriptionParsingService.categorizeSkills(skillNames);
 
         // 2. Iterate and Save

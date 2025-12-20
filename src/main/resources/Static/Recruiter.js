@@ -313,15 +313,14 @@ document.addEventListener('DOMContentLoaded', () => {
             }
         });
     }
-
 }); // End DOMContentLoaded
 
-let uploadedJobId = localStorage.getItem('activeJobId') || null;
-let uploadedJobDepartment = localStorage.getItem('activeJobDept') || null;
+// let uploadedJobId = localStorage.getItem('activeJobId') || null;
+// let uploadedJobDepartment = localStorage.getItem('activeJobDept') || null;
 
-if(uploadedJobId) {
-    console.log("Restored Session - Job ID:", uploadedJobId);
-}
+// if(uploadedJobId) {
+//     console.log("Restored Session - Job ID:", uploadedJobId);
+// }
 
 
 window.uploadResumesToBackend = async function() {
@@ -477,6 +476,99 @@ window.uploadResumesToBackend = async function() {
 };
 
 
+let uploadedJobId = null;
+let uploadedJobDepartment = null;
+
+
+// window.uploadJDToBackend = async function() {
+//     console.log("Starting JD Upload & Analysis...");
+
+//     // 1. Auth Check
+//     const userId = localStorage.getItem('userId');
+//     const token = localStorage.getItem('jwtToken');
+
+//     if (!userId || !token) {
+//         alert("Please login first.");
+//         return;
+//     }
+
+//     // 2. Get Files
+//     const jdInput = document.getElementById('jdInput');
+//     const files = jdInput.files;
+
+//     if (files.length === 0) {
+//         alert("Please select Job Description files first!");
+//         return;
+//     }
+
+//     // 3. Prepare Form Data
+//     const formData = new FormData();
+//     for (let i = 0; i < files.length; i++) {
+//         formData.append("files", files[i]);
+//     }
+//     formData.append("userId", userId);
+
+//     // 4. API Call
+//     const baseUrl = CONFIG.API_BASE_URL.replace('/auth', ''); 
+//     const uploadUrl = `${baseUrl}/job-postings/upload`;
+
+//     // Button UI
+//     const btn = document.querySelector('button[onclick="uploadJDToBackend()"]');
+//     const originalContent = btn.innerHTML;
+//     // Update text to reflect analysis is happening
+//     btn.innerHTML = `<i class="fas fa-spinner fa-spin"></i> Analyzing & Uploading...`;
+//     btn.disabled = true;
+
+//     try {
+//         const response = await fetch(uploadUrl, {
+//             method: 'POST',
+//             headers: {
+//                 'Authorization': `Bearer ${token}`
+//             },
+//             body: formData
+//         });
+
+//         if (response.ok) {
+//             const data = await response.json();console.log("JD Success:", result);
+//             const job = Array.isArray(data) ? data[0] : data;
+
+//             if (Array.isArray(result) && result.length > 0) {
+//                 const job = result[0]; // Take the first job
+                
+//                 uploadedJobId = job.id;
+//                 uploadedJobDepartment = job.department || job.title || "";
+                
+//                 // ✅ SAVE TO STORAGE
+//                 localStorage.setItem('activeJobId', uploadedJobId);
+//                 localStorage.setItem('activeJobDept', uploadedJobDepartment);
+                
+//                 console.log("Session Saved:", uploadedJobId);
+//             }
+            
+//             // ✅ CRITICAL: SAVE JOB ID TO STORAGE
+//             // uploadedJobId = job.id;
+//             // uploadedJobDepartment = job.department || job.title || "";
+            
+//             // localStorage.setItem('activeJobId', uploadedJobId);
+//             // localStorage.setItem('activeJobDept', uploadedJobDepartment);
+
+//             // console.log("✅ New Job Created with ID:", uploadedJobId);
+
+//             alert(`JD Uploaded & Analyzed!\nJob ID: ${uploadedJobId}\nExtracted Dept: ${uploadedJobDepartment}`);
+//             document.getElementById('jdUploadStatus').classList.remove('hidden');
+//             btn.innerHTML = `<i class="fas fa-check"></i> Done`;
+//         } else {
+//             throw new Error(await response.text());
+//         }
+//     } catch (error) {
+//         console.error("JD Upload Error:", error);
+//         alert("Upload Failed: " + error.message);
+//         btn.innerHTML = originalContent;
+//         btn.disabled = false;
+//     }finally {
+//         if(btn) setTimeout(() => btn.disabled = false, 2000);
+//     }
+// };
 
 window.uploadJDToBackend = async function() {
     console.log("Starting JD Upload & Analysis...");
@@ -498,84 +590,101 @@ window.uploadJDToBackend = async function() {
         alert("Please select Job Description files first!");
         return;
     }
-
-    // 3. Prepare Form Data
+    
     const formData = new FormData();
-    for (let i = 0; i < files.length; i++) {
-        formData.append("files", files[i]);
-    }
-    formData.append("userId", userId);
 
+    formData.append("file", files[0]);  // single file
+    formData.append("userId", userId);
+    
     // 4. API Call
     const baseUrl = CONFIG.API_BASE_URL.replace('/auth', ''); 
     const uploadUrl = `${baseUrl}/job-postings/upload`;
-
+    
     // Button UI
     const btn = document.querySelector('button[onclick="uploadJDToBackend()"]');
     const originalContent = btn.innerHTML;
-    // Update text to reflect analysis is happening
-    btn.innerHTML = `<i class="fas fa-spinner fa-spin"></i> Analyzing & Uploading...`;
+    btn.innerHTML = `<i class="fas fa-spinner fa-spin"></i> Analyzing...`;
     btn.disabled = true;
 
+    let uploadedJobId = null;
+    let uploadedJobDepartment = "";
     try {
+        
         const response = await fetch(uploadUrl, {
             method: 'POST',
-            headers: {
-                'Authorization': `Bearer ${token}`
-            },
+            // headers: {
+            //     'Authorization': `Bearer ${token}`
+            // },
             body: formData
         });
+        
+        console.log("here")
 
         if (response.ok) {
-            const data = await res.json();
-            const job = Array.isArray(data) ? data[0] : data;
-            
-            // ✅ CRITICAL: SAVE JOB ID TO STORAGE
+           
+            const job = await response.json();
+
             uploadedJobId = job.id;
             uploadedJobDepartment = job.department || job.title || "";
-            
-            localStorage.setItem('activeJobId', uploadedJobId);
+            localStorage.setItem('jobId', job.id);
+            localStorage.setItem('activeJobId', job.id);
             localStorage.setItem('activeJobDept', uploadedJobDepartment);
 
-            console.log("✅ New Job Created with ID:", uploadedJobId);
-
-            alert(`JD Uploaded & Analyzed!\nJob ID: ${uploadedJobId}\nExtracted Dept: ${uploadedJobDepartment}`);
+            alert(`Success! JD Analyzed. Extracted Department: ${uploadedJobDepartment}`);
+            
             document.getElementById('jdUploadStatus').classList.remove('hidden');
             btn.innerHTML = `<i class="fas fa-check"></i> Done`;
+            
+            setTimeout(() => {
+                btn.innerHTML = originalContent;
+                btn.disabled = false;
+            }, 3000);
+
         } else {
+            console.log("zarur galti hai ");
+            
             throw new Error(await response.text());
         }
+
     } catch (error) {
-        console.error("JD Upload Error:", error);
+        console.log(error.stack);
         alert("Upload Failed: " + error.message);
         btn.innerHTML = originalContent;
         btn.disabled = false;
-    }finally {
-        if(btn) setTimeout(() => btn.disabled = false, 2000);
     }
 };
 
 window.saveRequirements = async function() {
-    //Get Data
-    // 1. Get Data from DOM and LocalStorage
+    // 1. Get Data from UI
     const jobDomainSelect = document.getElementById('jobDomainSelect');
     const selectedDomain = jobDomainSelect.value;
     const skillTags = document.querySelectorAll('#skillTags span');
     
-    // Clean up skill text (removes the " X" close icon text)
+    // Clean up skill text
     const skills = Array.from(skillTags).map(tag => tag.textContent.replace(' ', '').trim()); 
-    
     const userId = localStorage.getItem('userId');
     const token = localStorage.getItem('jwtToken');
 
-    // 2. Basic Frontend Validation
-    if (!userId || !token) {
-        alert("Please login first.");
+    // 2. RETRIEVE JOB ID (Fix for "null" error after refresh)
+    // If global variable is empty, try to get it from storage
+    if (!uploadedJobId) {
+        uploadedJobId = localStorage.getItem('activeJobId');
+    }
+
+    // 3. Validation
+    if (!userId || !token) { 
+        alert("Please login first."); 
+        return; 
+    }
+
+    if (!uploadedJobId) {
+        // If still null, it means they truly haven't uploaded a JD yet
+        alert("No Job ID found. Please upload a Job Description in Section 2 first.");
         return;
     }
 
     if (selectedDomain === "Select Domain" || !selectedDomain) {
-        alert("Please select a Job Domain from the dropdown.");
+        alert("Please select a Job Domain.");
         jobDomainSelect.focus();
         return;
     }
@@ -586,36 +695,19 @@ window.saveRequirements = async function() {
         return;
     }
 
-    // 3. Conditional Validation (Only runs IF a file was previously uploaded)
-    // If uploadedJobId is null, we assume the user skipped Section 2 and is creating a fresh job.
-    if (uploadedJobId) {
-                
-        // Loose matching logic: Check if one string contains the other (case-insensitive)
-        // Also allows "Engineer" in JD to match "Developer" in selection
-        const jdDept = (uploadedJobDepartment || "").toLowerCase();
-        const selDept = selectedDomain.toLowerCase();
-
-        const isMatch = jdDept.includes(selDept) || selDept.includes(jdDept) ||
-                        (jdDept.includes('engineer') && selDept.includes('developer'));
-
-        if (!isMatch) {
-            alert(`Warning: Domain '${selectedDomain}' doesn't match extracted JD '${uploadedJobDepartment}'. Proceeding anyway...`);
-            // We allow proceeding now, just a warning.
-        }
-    }
+    // (Validation logic for Domain Comparison has been REMOVED as requested)
 
     // 4. Send to Backend
-    // We send userId and jobDomain so the backend can create a job if jobId is null.
     const baseUrl = CONFIG.API_BASE_URL.replace('/auth', '');
     const url = `${baseUrl}/job-postings/save-requirements`;
 
-    // Visual Feedback (Optional: Disable button)
-    // const saveBtn = document.querySelector('button[onclick="saveRequirements()"]');
-    // const originalBtnText = saveBtn ? saveBtn.innerHTML : '';
-    // if (saveBtn) {
-    //     saveBtn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Saving...';
-    //     saveBtn.disabled = true;
-    // }
+    // Button Feedback
+    const saveBtn = document.querySelector('button[onclick="saveRequirements()"]');
+    const originalBtnText = saveBtn ? saveBtn.innerHTML : 'Save Requirements';
+    if (saveBtn) {
+        saveBtn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Saving...';
+        saveBtn.disabled = true;
+    }
 
     try {
         const response = await fetch(url, {
@@ -625,47 +717,38 @@ window.saveRequirements = async function() {
                 'Authorization': `Bearer ${token}`
             },
             body: JSON.stringify({
-                jobId: uploadedJobId, // This can be null (Backend handles it)
-                userId: userId,       // Required for creating new job
+                jobId: uploadedJobId, 
+                userId: userId, 
                 jobDomain: selectedDomain,
                 skills: skills
             })
         });
-        
+
+        // ✅ FIX: Robust Response Handling (Prevents "Unexpected token S")
         const responseText = await response.text();
         let result;
+        
         try {
+            // Try to parse as JSON
             result = JSON.parse(responseText);
         } catch (e) {
-            // If response is not JSON (e.g., just "Skills saved"), construct a fake object
+            // If backend returned plain text (e.g. "Skills saved successfully"), handle it gracefully
             console.warn("Backend returned non-JSON:", responseText);
             if (response.ok) {
                 result = { message: responseText, jobId: uploadedJobId };
             } else {
-                throw new Error(responseText);
+                result = { message: responseText }; // Fallback for error text
             }
         }
+
         if (response.ok) {
-            const result = await response.json();
-            alert(`Requirements saved successfully!\n(Job ID: ${result.jobId})`);
-            
-            // CRITICAL: Update global state
-            // If we created a new job from scratch, we must save its ID now.
-            // This ensures if the user clicks "Save" again, it updates the same job instead of creating another one.
-            if (result.jobId) {
-                uploadedJobId = result.jobId;
-                uploadedJobDepartment = selectedDomain;
-                
-                localStorage.setItem('activeJobId', uploadedJobId);
-                localStorage.setItem('activeJobDept', uploadedJobDepartment);
-            }
-            
+            alert(`Requirements saved successfully!\n(Job ID: ${result.jobId || uploadedJobId})`);
         } else {
-            const errorText = await response.text();
-            throw new Error(errorText);
+            throw new Error(result.error || result.message || "Unknown Error");
         }
+
     } catch (e) {
-        console.error("Save Requirements Error:", e);
+        console.error("Save Error:", e);
         alert("Failed to save requirements: " + e.message);
     } finally {
         // Reset Button
