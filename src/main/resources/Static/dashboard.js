@@ -156,7 +156,7 @@ async function handleSignup() {
 
 // ===== Sample Data (CLEANED UP - photo and aiSummary removed) =====
 let rawCandidates = [
-  {id:1,name:"Sarah Johnson",position:"Frontend Developer",experience:5,score:94,skillsMatch:"28/30",status:"shortlisted", atsBreakdown: {keywords: 90, format: 95, length: 85}},
+  {id:1,name:"Sarah Johnson",position:"Frontend Developer",score:94,status:"shortlisted", atsBreakdown: {keywords: 90, format: 95, length: 85}},
   {id:2,name:"Robert Kim",position:"Backend Developer",experience:6,score:91,skillsMatch:"29/30",status:"shortlisted", atsBreakdown: {keywords: 95, format: 85, length: 90}},
   {id:3,name:"UI Engineer",position:"UI Engineer",experience:4,score:87,skillsMatch:"25/30",status:"consider", atsBreakdown: {keywords: 88, format: 85, length: 86}},
   {id:4,name:"Lisa Thompson",position:"Frontend Developer",experience:4,score:84,skillsMatch:"26/30",status:"consider", atsBreakdown: {keywords: 80, format: 92, length: 80}},
@@ -365,8 +365,7 @@ function renderCandidateCards(candidateArray) {
             // Set content
             clone.querySelector('.name').textContent = candidate.name;
             clone.querySelector('.position').textContent = candidate.position;
-            clone.querySelector('.exp').textContent = `${candidate.experience} yrs`;
-            clone.querySelector('.skills').textContent = candidate.skillsMatch;
+            
 
             // Score Pill Styling
             const scorePill = clone.querySelector('.score-pill');
@@ -408,16 +407,16 @@ function updateSummaryStats() {
     const avgScore = totalCount > 0 
         ? (rawCandidates.reduce((sum, c) => sum + c.score, 0) / totalCount).toFixed(1)
         : 0;
-    const avgExp = totalCount > 0 
-        ? (rawCandidates.reduce((sum, c) => sum + c.experience, 0) / totalCount).toFixed(1)
-        : 0;
+    
+    // Removed the avgExp calculation line
 
     document.getElementById('totalCount').textContent = totalCount;
     document.getElementById('shortlistCount').textContent = shortlistedCount;
     document.getElementById('avgScore').textContent = avgScore;
-    document.getElementById('avgExp').textContent = `${avgExp} Yrs`;
+    
+    // DELETE OR COMMENT OUT THE LINE BELOW:
+    // document.getElementById('avgExp').textContent = `${avgExp} Yrs`; 
 }
-
 /**
  * Toggles the shortlist status of a candidate and updates the UI.
  * @param {number} id - The ID of the candidate.
@@ -629,4 +628,5 @@ document.addEventListener('DOMContentLoaded', () => {
     
     // Then apply filters and render initial list
     applyFiltersAndSort(); 
+    
 });
