@@ -1,126 +1,416 @@
 <!DOCTYPE html>
 <html lang="en" class="scroll-smooth">
 <head>
-    <meta charset="UTF-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>ResumeGenius AI — Recruiter Dashboard</title>
-    <script src="https://cdn.tailwindcss.com"></script>
-    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
-    <script src="https://unpkg.com/feather-icons"></script>
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
-    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
-    <link href="https://unpkg.com/aos@2.3.1/dist/aos.css" rel="stylesheet">
-    <script src="config.js"></script> 
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>ResumeGenius AI — Recruiter Dashboard</title>
+<script src="https://cdn.tailwindcss.com"></script>
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+<script src="https://unpkg.com/feather-icons"></script>
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+<link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+<link href="https://unpkg.com/aos@2.3.1/dist/aos.css" rel="stylesheet">
+<script src="config.js"></script>
 
-    <script>
+<script>
         tailwind.config = {
             theme: {
                 extend: {
                     colors: {
-                        brand: { dark: '#0f0f1a', card: '#1a1f2d', primary: '#4a6cf7', accent: '#6dd3ff' }
+                        brand: {
+                            dark: '#0f0f1a',
+                            card: '#1a1f2d',
+                            primary: '#4a6cf7',
+                            accent: '#6dd3ff',
+                        }
                     },
-                    fontFamily: { sans: ['Poppins', 'sans-serif'] }
+                    fontFamily: {
+                        sans: ['Poppins', 'sans-serif'],
+                    },
+                    animation: {
+                        'float': 'float 6s ease-in-out infinite',
+                        'pulse-slow': 'pulse 4s cubic-bezier(0.4, 0, 0.6, 1) infinite',
+                    },
+                    keyframes: {
+                        float: {
+                            '0%, 100%': { transform: 'translateY(0)' },
+                            '50%': { transform: 'translateY(-20px)' },
+                        }
+                    }
                 }
             }
         }
     </script>
-    <style>
-        .glass-nav { background: rgba(255, 255, 255, 0.8); backdrop-filter: blur(12px); border-bottom: 1px solid rgba(255, 255, 255, 0.3); }
-        .text-gradient { background: linear-gradient(135deg, #4a6cf7 0%, #764ba2 100%); -webkit-background-clip: text; -webkit-text-fill-color: transparent; }
-        .shortlisted { border: 2px solid #34d399; box-shadow: 0 0 10px rgba(52, 211, 153, 0.2); }
-        .score-pill { min-width:60px; text-align:center; border-radius:9999px; padding:4px 8px; font-weight:700; font-size: 0.875rem; }
-        .chart-wrap { height: 160px; }
-        .custom-scrollbar::-webkit-scrollbar { width: 6px; }
-        .custom-scrollbar::-webkit-scrollbar-thumb { background-color: #475569; border-radius: 10px; }
-    </style>
+<style>
+  /* Glass Nav Style from index.html */
+  .glass-nav {
+            background: rgba(255, 255, 255, 0.8);
+            backdrop-filter: blur(12px);
+            border-bottom: 1px solid rgba(255, 255, 255, 0.3);
+        }
+        /* Gradient Text */
+        .text-gradient {
+            background: linear-gradient(135deg, #4a6cf7 0%, #764ba2 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+        /* Hover Underline Animation */
+        .hover-underline-animation {
+            display: inline-block;
+            position: relative;
+        }
+        .hover-underline-animation::after {
+            content: '';
+            position: absolute;
+            width: 100%;
+            transform: scaleX(0);
+            height: 2px;
+            bottom: -2px;
+            left: 0;
+            background-color: #4a6cf7;
+            transform-origin: bottom right;
+            transition: transform 0.25s ease-out;
+        }
+        .hover-underline-animation:hover::after {
+            transform: scaleX(1);
+            transform-origin: bottom left;
+        }
+  .shortlisted { 
+      /* Enhanced visibility for shortlisted */
+      border: 2px solid #34d399; /* Green 400 */
+      box-shadow: 0 0 10px rgba(52, 211, 153, 0.2);
+  }
+  .card-ai-summary { 
+      font-size: 0.875rem; /* text-sm */
+      color: #94a3b8; /* text-slate-400 for professional subtle summary */
+  }
+  .score-pill { 
+      min-width:60px; text-align:center; border-radius:9999px; padding:4px 8px; font-weight:700; font-size: 0.875rem; /* text-sm */
+  }
+  .chart-wrap { height: 160px; } 
+  .chart-wrap-large, .chart-wrap-small { height: 256px; } /* Set height for new charts */
+  .text-gradient {
+      background: linear-gradient(135deg, #4a6cf7 0%, #764ba2 100%);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+  }
+
+    /* Custom Checkbox Styling for dark theme */
+    .form-checkbox {
+        appearance: none;
+        background-color: #0f0f1a; /* bg-brand-dark */
+        border: 1px solid #475569; /* border-slate-600 */
+        border-radius: 4px;
+        width: 1rem;
+        height: 1rem;
+        cursor: pointer;
+        transition: all 0.2s;
+        position: relative;
+        flex-shrink: 0;
+    }
+    .form-checkbox:checked {
+        background-color: #4a6cf7; /* bg-brand-primary */
+        border-color: #4a6cf7;
+    }
+    .form-checkbox:checked:after {
+        content: '\2713'; /* Checkmark symbol */
+        color: white;
+        font-size: 0.7rem;
+        position: absolute;
+        top: 50%;
+        left: 50%;
+        transform: translate(-50%, -50%);
+    }
+    .custom-scrollbar::-webkit-scrollbar {
+        width: 6px;
+    }
+
+    .custom-scrollbar::-webkit-scrollbar-thumb {
+        background-color: #475569;
+        border-radius: 10px;
+    }
+
+    .custom-scrollbar::-webkit-scrollbar-track {
+        background: #1a1f2d;
+    }
+</style>
 </head>
 
 <body class="bg-brand-dark font-sans text-gray-200">
+<div id="nav-placeholder"></div>
+    
     <main class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-24 pt-32">
         <div class="text-center mb-12">
             <h1 class="text-5xl font-extrabold text-gradient tracking-tight">AI Candidate Analytics</h1>
-            <p class="text-gray-400 mt-3 text-lg font-light">Dynamic insights fetched directly from your recruiter database.</p>
+            <p class="text-gray-400 mt-3 text-lg font-light">Efficiently shortlist top talent based on precise AI matching and criteria.</p>
         </div>
 
-        <div class="grid grid-cols-2 lg:grid-cols-4 bg-brand-card rounded-xl shadow-2xl border border-gray-700/50 mb-10 divide-x divide-gray-700/50">
-            <div class="p-6 text-center">
+        <div class="grid grid-cols-2 lg:grid-cols-4 bg-brand-card rounded-xl shadow-2xl border border-gray-700/50 mb-10 divide-x divide-gray-700/50" data-aos="fade-up">
+            <div class="p-6 text-center hover:bg-brand-dark transition">
                 <p class="text-sm font-medium text-gray-400">Total Candidates</p>
-                <p id="totalCount" class="text-3xl font-extrabold text-white mt-1">0</p>
+                <p id="totalCount" class="text-3xl font-extrabold text-white mt-1">20</p>
             </div>
-            <div class="p-6 text-center">
+            <div class="p-6 text-center hover:bg-brand-dark transition">
                 <p class="text-sm font-medium text-gray-400">Shortlisted</p>
                 <p id="shortlistCount" class="text-3xl font-extrabold text-green-400 mt-1">0</p>
             </div>
-            <div class="p-6 text-center">
+            <div class="p-6 text-center hover:bg-brand-dark transition">
                 <p class="text-sm font-medium text-gray-400">Avg. Match Score</p>
-                <p id="avgScore" class="text-3xl font-extrabold text-yellow-400 mt-1">0</p>
+                <p id="avgScore" class="text-3xl font-extrabold text-yellow-400 mt-1">75.5</p>
             </div>
-            <div class="p-6 text-center">
+            <div class="p-6 text-center hover:bg-brand-dark transition">
                 <p class="text-sm font-medium text-gray-400">Avg. Experience</p>
-                <p id="avgExp" class="text-3xl font-extrabold text-purple-400 mt-1">0 Yrs</p>
+                <p id="avgExp" class="text-3xl font-extrabold text-purple-400 mt-1">4.2 Yrs</p>
             </div>
         </div>
         
         <div class="grid grid-cols-1 lg:grid-cols-12 gap-8">
+            
             <div id="filterSidebar" class="lg:col-span-3">
-                <div class="bg-brand-card p-6 rounded-xl shadow-lg border border-gray-700/50 sticky top-24 space-y-6">
+                
+                <div class="bg-brand-card p-6 rounded-xl shadow-lg border border-gray-700/50 sticky top-24 space-y-6" data-aos="fade-up">
                     <h3 class="text-lg font-semibold text-white mb-4 border-b border-gray-700/50 pb-2">Filter Candidates</h3>
-                    <input type="text" id="searchInput" placeholder="Search name/position..." class="bg-brand-dark text-white p-3 rounded-lg border border-gray-700 text-sm w-full">
                     
-                    <div class="space-y-2">
-                        <h4 class="text-sm font-semibold text-gray-300">Position</h4>
-                        <div id="positionCheckboxes" class="space-y-2 max-h-40 overflow-y-auto pr-2 custom-scrollbar"></div>
-                    </div>
+                    <div class="flex flex-col gap-4">
+                        <input type="text" id="searchInput" placeholder="Search name/summary..." class="bg-brand-dark text-white p-3 rounded-lg border border-gray-700 text-sm w-full focus:ring-brand-primary focus:border-brand-primary">
+                        
+                        <div class="space-y-2">
+                            <h4 class="text-sm font-semibold text-gray-300">Position</h4>
+                            <div id="positionCheckboxes" class="space-y-2 max-h-40 overflow-y-auto pr-2 custom-scrollbar">
+                                </div>
+                        </div>
 
-                    <div class="space-y-2">
-                        <h4 class="text-sm font-semibold text-gray-300">Match Score</h4>
-                        <label class="flex items-center space-x-2 text-sm text-gray-300"><input type="checkbox" name="scoreFilter" value="90+" class="form-checkbox"><span>Elite (90+)</span><span id="count-90" class="ml-auto text-green-400">0</span></label>
-                        <label class="flex items-center space-x-2 text-sm text-gray-300"><input type="checkbox" name="scoreFilter" value="80-89" class="form-checkbox"><span>Strong (80-89)</span><span id="count-80-89" class="ml-auto text-yellow-400">0</span></label>
+                        <div class="space-y-2">
+                            <h4 class="text-sm font-semibold text-gray-300">Match Score</h4>
+                            <label class="flex items-center space-x-2 text-sm text-gray-300 hover:text-white cursor-pointer transition">
+                                <input type="checkbox" name="scoreFilter" value="90+" class="form-checkbox">
+                                <span>Elite (90+)</span>
+                                <span class="text-xs text-green-400 ml-auto">(<span id="count-90">0</span>)</span>
+                            </label>
+                            <label class="flex items-center space-x-2 text-sm text-gray-300 hover:text-white cursor-pointer transition">
+                                <input type="checkbox" name="scoreFilter" value="80-89" class="form-checkbox">
+                                <span>Strong (80-89)</span>
+                                <span class="text-xs text-yellow-400 ml-auto">(<span id="count-80-89">0</span>)</span>
+                            </label>
+                            <label class="flex items-center space-x-2 text-sm text-gray-300 hover:text-white cursor-pointer transition">
+                                <input type="checkbox" name="scoreFilter" value="70-79" class="form-checkbox">
+                                <span>Good (70-79)</span>
+                                <span class="text-xs text-blue-400 ml-auto">(<span id="count-70-79">0</span>)</span>
+                            </label>
+                            <label class="flex items-center space-x-2 text-sm text-gray-300 hover:text-white cursor-pointer transition">
+                                <input type="checkbox" name="scoreFilter" value="<70" class="form-checkbox">
+                                <span>Below Avg. (< 70)</span>
+                                <span class="text-xs text-red-400 ml-auto">(<span id="count-lt70">0</span>)</span>
+                            </label>
+                        </div>
+                        
+                        <div class="space-y-2">
+                            <h4 class="text-sm font-semibold text-gray-300">Status</h4>
+                            <label class="flex items-center space-x-2 text-sm text-gray-300 hover:text-white cursor-pointer transition">
+                                <input type="checkbox" name="statusFilter" value="shortlisted" class="form-checkbox">
+                                <span>Shortlisted</span>
+                            </label>
+                            <label class="flex items-center space-x-2 text-sm text-gray-300 hover:text-white cursor-pointer transition">
+                                <input type="checkbox" name="statusFilter" value="consider" class="form-checkbox">
+                                <span>To Consider</span>
+                            </label>
+                            <label class="flex items-center space-x-2 text-sm text-gray-300 hover:text-white cursor-pointer transition">
+                                <input type="checkbox" name="statusFilter" value="rejected" class="form-checkbox">
+                                <span>Rejected</span>
+                            </label>
+                        </div>
                     </div>
                 </div>
             </div>
 
             <div class="lg:col-span-9">
-                <div class="flex justify-between items-center mb-6">
-                     <select id="sortSelect" class="bg-brand-card text-white p-2 rounded-lg border border-gray-700 text-sm">
+
+                <div class="flex justify-between items-center mb-6" data-aos="fade-up" data-aos-delay="300">
+                     <select id="sortSelect" class="bg-brand-card text-white p-2 rounded-lg border border-gray-700 text-sm shadow-lg">
                         <option value="score_desc">Sort By: Score (Highest)</option>
+                        <option value="score_asc">Sort By: Score (Lowest)</option>
                         <option value="experience_desc">Sort By: Exp (Highest)</option>
+                        <option value="experience_asc">Sort By: Exp (Lowest)</option>
                     </select>
+                    <div class="flex gap-4 items-center">
+                         <button id="exportBtn" class="flex items-center gap-1 text-sm text-gray-400 hover:text-brand-accent transition font-medium"><i data-feather="download" class="w-4 h-4"></i> Export Data</button>
+                         <button id="downloadSelectedBtn" class="flex items-center gap-1 text-sm text-gray-400 hover:text-brand-accent transition font-medium"><i data-feather="file-text" class="w-4 h-4"></i> Batch Resume</button>
+                         <button id="addCandidates" class="bg-brand-primary text-white text-sm font-medium py-2 px-4 rounded-lg hover:bg-blue-600 transition shadow-md hover:shadow-lg">
+                            <i data-feather="plus-circle" class="w-4 h-4 inline mr-1"></i> Add Sample
+                        </button>
+                    </div>
                 </div>
-                <div id="candidateList" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6"></div>
-                <div id="noResults" class="hidden text-center text-gray-500 py-16"><p>No candidates found.</p></div>
+                
+
+                <div id="candidateList" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-2 xl:grid-cols-3 gap-6">
+                    </div>
+                
+                <div id="noResults" class="hidden text-center text-gray-500 py-16">
+                    <i data-feather="frown" class="w-16 h-16 mx-auto mb-4"></i>
+                    <p class="text-xl font-medium">No candidates match the applied criteria.</p>
+                    <p class="text-sm mt-1">Try adjusting your filters or search terms.</p>
+                </div>
+                
+            </div>
+            
+        </div>
+        </main>
+
+    <footer class="glass-nav border-t border-gray-200 pt-16 pb-8 relative shadow-inner">
+        <div class="max-w-7xl mx-auto px-4 grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-12 mb-12">
+            <div data-aos="fade-up" data-aos-delay="0">
+                 <img src="images/graphuralogo.png" alt="Graphura" class="h-16 mb-4 rounded p-1 transition-colors">
+                 <p class="text-gray-600 text-sm leading-relaxed">Helping you shortlist top talent using AI — fast, fair and focused.</p>
+            </div>
+            <div data-aos="fade-up" data-aos-delay="100">
+                <h3 class="text-gray-900 font-bold mb-4 border-b border-brand-primary/50 inline-block pb-1">Quick Links</h3>
+                <ul class="space-y-3 text-sm text-gray-600">
+                    <li><a href="#home" class="hover:text-brand-primary hover:pl-2 transition-all duration-300 flex items-center"><i class="fas fa-chevron-right text-xs mr-2 opacity-0 hover:opacity-100"></i>Home</a></li>
+                    <li><a href="Recruiter.html" class="hover:text-brand-primary hover:pl-2 transition-all duration-300 flex items-center"><i class="fas fa-chevron-right text-xs mr-2 opacity-0 hover:opacity-100"></i>Recruiter Dashboard</a></li>
+                    
+                    <li><a href="dashboard.html" class="hover:text-brand-primary hover:pl-2 transition-all duration-300 flex items-center"><i class="fas fa-chevron-right text-xs mr-2 opacity-0 hover:opacity-100"></i>Analytics</a></li>
+                    </ul>
+            </div>
+            <div data-aos="fade-up" data-aos-delay="200">
+                <h3 class="text-gray-900 font-bold mb-4 border-b border-brand-primary/50 inline-block pb-1">Resources</h3>
+                <ul class="space-y-3 text-sm text-gray-600">
+                    <li><a href="#" class="hover:text-brand-primary hover:pl-2 transition-all duration-300 flex items-center"><i class="fas fa-chevron-right text-xs mr-2 opacity-0 hover:opacity-100"></i>Documentation</a></li>
+                    <li><a href="#" class="hover:text-brand-primary hover:pl-2 transition-all duration-300 flex items-center"><i class="fas fa-chevron-right text-xs mr-2 opacity-0 hover:opacity-100"></i>Support</a></li>
+                    <li><a href="#" class="hover:text-brand-primary hover:pl-2 transition-all duration-300 flex items-center"><i class="fas fa-chevron-right text-xs mr-2 opacity-0 hover:opacity-100"></i>Privacy Policy</a></li>
+                </ul>
+            </div>
+            <div data-aos="fade-up" data-aos-delay="300">
+                <h3 class="text-gray-900 font-bold mb-4 border-b border-brand-primary/50 inline-block pb-1">Contact</h3>
+                <p class="text-gray-600 text-sm mb-6">support@graphura.in<br>+91 73780 21327</p>
+                <div class="flex space-x-4">
+                    <a href="#" class="group w-10 h-10 rounded-full bg-gray-200 flex items-center justify-center text-gray-600 hover:bg-brand-primary hover:text-white transition-all duration-300 transform hover:scale-110 hover:-translate-y-1"><i class="fab fa-twitter group-hover:rotate-12 transition-transform"></i></a>
+                    <a href="#" class="group w-10 h-10 rounded-full bg-gray-200 flex items-center justify-center text-gray-600 hover:bg-brand-primary hover:text-white transition-all duration-300 transform hover:scale-110 hover:-translate-y-1"><i class="fab fa-linkedin-in group-hover:rotate-12 transition-transform"></i></a>
+                    <a href="#" class="group w-10 h-10 rounded-full bg-gray-200 flex items-center justify-center text-gray-600 hover:bg-brand-primary hover:text-white transition-all duration-300 transform hover:scale-110 hover:-translate-y-1"><i class="fab fa-facebook-f group-hover:rotate-12 transition-transform"></i></a>
+                </div>
             </div>
         </div>
-    </main>
+        
+    </footer>
+    <div class="text-center text-gray-500 text-sm border-t border-gray-200 p-8 pt-8 ">
+        © <span id="year"></span> Graphura India Private Limited — All rights reserved.
+    </div>
 
     <div id="detailModal" class="fixed inset-0 bg-black/80 z-50 hidden flex items-center justify-center p-4">
         <div class="bg-brand-card rounded-xl shadow-2xl max-w-3xl w-full p-8 relative border border-gray-700/50">
-            <button class="absolute top-4 right-4 text-gray-400" onclick="document.getElementById('detailModal').classList.add('hidden')"><i data-feather="x"></i></button>
+            <button class="absolute top-4 right-4 text-gray-400 hover:text-white transition" onclick="document.getElementById('detailModal').classList.add('hidden')"><i data-feather="x" class="w-6 h-6"></i></button>
             <h2 id="modalName" class="text-3xl font-bold text-white mb-0"></h2>
-            <p id="modalPosition" class="text-brand-accent mb-6"></p>
-            <div class="chart-wrap"><canvas id="atsChart"></canvas></div>
+            <p id="modalPosition" class="text-brand-accent mb-6 font-medium"></p>
+            
+            <div class="grid grid-cols-2 gap-6 mb-6 border-b border-gray-700 pb-4">
+                <div class="bg-brand-dark p-4 rounded-lg border border-gray-700">
+                    <p class="text-sm text-gray-400 font-medium uppercase tracking-wider">Match Score</p>
+                    <p id="modalScore" class="text-3xl font-extrabold text-green-400 mt-1"></p>
+                </div>
+                <div class="bg-brand-dark p-4 rounded-lg border border-gray-700">
+                    <p class="text-sm text-gray-400 font-medium uppercase tracking-wider">Experience</p>
+                    <p id="modalExp" class="text-3xl font-extrabold text-white mt-1"></p>
+                </div>
+            </div>
+
+            <div class="bg-brand-dark p-4 rounded-lg border border-gray-700 mb-6">
+                <h3 class="text-lg font-semibold text-white mb-3 flex items-center"><i data-feather="bar-chart-2" class="w-5 h-5 mr-2 text-brand-primary"></i> ATS Score Breakdown</h3>
+                <div class="chart-wrap">
+                    <canvas id="atsChart"></canvas>
+                </div>
+            </div>
+            
+            <div class="flex justify-end gap-4 mt-6">
+                <button id="modalReject" class="bg-red-600 hover:bg-red-700 text-white py-2.5 px-6 rounded-lg font-semibold transition shadow-md disabled:bg-gray-700 disabled:text-gray-400 disabled:cursor-not-allowed">
+                    <i data-feather="thumbs-down" class="w-4 h-4 inline mr-2"></i> Reject Candidate
+                </button>
+                <button id="modalShortlist" class="bg-green-600 hover:bg-green-700 text-white py-2.5 px-6 rounded-lg font-semibold transition shadow-md disabled:bg-gray-700 disabled:text-gray-400 disabled:cursor-not-allowed">
+                    <i data-feather="star" class="w-4 h-4 inline mr-2"></i> Shortlist
+                </button>
+            </div>
         </div>
     </div>
-
     <template id="cardTemplate">
-      <div class="card bg-brand-card rounded-xl shadow-2xl p-6 flex flex-col h-full border-2 border-transparent hover:border-brand-primary/50 transition cursor-pointer" onclick="showDetailModal(this.dataset.id)">
+      <div class="card bg-brand-card rounded-xl shadow-2xl p-6 flex flex-col h-full border-2 border-transparent hover:border-brand-primary/50 transition duration-300 cursor-pointer" onclick="showDetailModal(this.dataset.id)">
         <div class="flex items-start justify-between">
-            <div><h4 class="name text-xl font-bold text-white"></h4><div class="text-sm text-gray-400 position"></div></div>
-            <div class="score-pill"></div>
+            <div>
+              <h4 class="name text-xl font-bold text-white mb-0.5"></h4>
+              <div class="text-sm text-gray-400 position font-medium"></div>
+            </div>
+          <div class="flex flex-col items-end gap-1">
+            <div class="score-pill text-sm shadow-md"></div>
+            <div class="text-xs text-gray-500 font-medium">Match Score</div>
+          </div>
         </div>
-        <div class="mt-4 pt-4 border-t border-gray-700/50">
-          <div class="text-sm text-gray-300">Exp: <span class="exp"></span></div>
-          <div class="text-sm text-gray-300">Skills: <span class="skills"></span></div>
+        <div class="mt-4 flex-grow border-t border-gray-700/50 pt-4">
+          <div class="text-sm text-gray-300 mb-2"><strong><i data-feather="briefcase" class="w-4 h-4 inline mr-2 text-brand-primary"></i> Exp:</strong> <span class="exp font-semibold"></span></div>
+          <div class="text-sm text-gray-300 mb-2"><strong><i data-feather="code" class="w-4 h-4 inline mr-2 text-brand-primary"></i> Skills:</strong> <span class="skills font-semibold"></span></div>
         </div>
         <div class="mt-4 pt-4 border-t border-gray-700 flex items-center justify-between">
-          <label class="flex items-center gap-2 text-sm text-gray-400">
-            <input type="checkbox" class="shortlistCheckbox form-checkbox"> Shortlist
-          </label>
-          <span class="text-brand-primary text-sm font-semibold">View Profile</span>
+          <div class="flex items-center gap-2">
+            <input type="checkbox" class="shortlistCheckbox form-checkbox h-5 w-5 text-green-500 border-gray-600 bg-brand-dark rounded focus:ring-green-500">
+            <span class="text-sm text-gray-400 font-medium">Shortlist</span>
+          </div>
+          <button class="view-btn text-brand-primary hover:text-brand-accent text-sm font-semibold transition flex items-center">
+            View Profile <i data-feather="arrow-right" class="w-4 h-4 inline ml-1"></i>
+          </button>
         </div>
       </div>
     </template>
 
-    <script src="dashboard.js"></script>
+    <button id="scrollTopBtn" onclick="scrollToTop()" 
+        class="fixed bottom-8 right-8 z-50 bg-brand-primary text-white p-4 rounded-full shadow-lg transition-all duration-300 transform translate-y-24 opacity-0 hover:bg-blue-600 hover:shadow-xl">
+        <i class="fas fa-arrow-up text-xl"></i>
+    </button>
+    
+    <div id="overlay" class="fixed inset-0 bg-black/60 backdrop-blur-sm z-[55] hidden opacity-0 transition-opacity duration-300" onclick="closePopup()"></div>
+    
+    <div id="loginPopup" class="fixed top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 bg-brand-card p-8 rounded-xl shadow-2xl z-[60] max-w-sm w-full hidden transform scale-90 opacity-0 transition-all duration-300">
+        <button onclick="closePopup()" class="absolute top-4 right-4 text-gray-400 hover:text-white transition-colors"><i class="fas fa-times"></i></button>
+        <h2 class="text-3xl font-bold text-white mb-2 text-center">Welcome Back</h2>
+        <p class="text-gray-400 text-center text-sm mb-6">Login to access your dashboard</p>
+        
+        <div class="space-y-4">
+            <input type="email" id="login-email" placeholder="Email Address" class="w-full bg-brand-dark border border-gray-700 rounded-lg p-3 text-white focus:border-brand-primary focus:ring-2 focus:ring-brand-primary/20 focus:outline-none transition-all">
+            <input type="password" id="login-password" placeholder="Password" class="w-full bg-brand-dark border border-gray-700 rounded-lg p-3 text-white focus:border-brand-primary focus:ring-2 focus:ring-brand-primary/20 focus:outline-none transition-all">
+        </div>
+        
+        <button onclick="handleLogin()" class="w-full mt-6 bg-brand-primary hover:bg-blue-600 text-white font-bold py-3 rounded-lg transition-all shadow-lg hover:shadow-brand-primary/30 transform hover:-translate-y-0.5">Login</button>
+        <p class="text-center text-gray-400 text-sm mt-4">New member? <a href="#" onclick="openSignup(true)" class="text-brand-accent hover:text-brand-primary font-semibold transition-colors">Sign Up</a></p>
+    </div>
+
+    <div id="signupPopup" class="fixed top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 bg-brand-card p-8 rounded-xl shadow-2xl z-[60] max-w-sm w-full hidden transform scale-90 opacity-0 transition-all duration-300">
+        <button onclick="closePopup()" class="absolute top-4 right-4 text-gray-400 hover:text-white transition-colors"><i class="fas fa-times"></i></button>
+        <h2 class="text-3xl font-bold text-white mb-2 text-center">Get Started</h2>
+        <p class="text-gray-400 text-center text-sm mb-6">Join Graphura today</p>
+        
+        <div class="space-y-4">
+            <input type="text" id="signup-name" placeholder="Full Name" class="w-full bg-brand-dark border border-gray-700 rounded-lg p-3 text-white focus:border-brand-primary focus:ring-2 focus:ring-brand-primary/20 focus:outline-none transition-all">
+            <input type="email" id="signup-email" placeholder="Email Address" class="w-full bg-brand-dark border border-gray-700 rounded-lg p-3 text-white focus:border-brand-primary focus:ring-2 focus:ring-brand-primary/20 focus:outline-none transition-all">
+            <input type="password" id="signup-password" placeholder="Password" class="w-full bg-brand-dark border border-gray-700 rounded-lg p-3 text-white focus:border-brand-primary focus:ring-2 focus:ring-brand-primary/20 focus:outline-none transition-all">
+        </div>
+        
+        <button onclick="handleSignup()" class="w-full mt-6 bg-brand-primary hover:bg-blue-600 text-white font-bold py-3 rounded-lg transition-all shadow-lg hover:shadow-brand-primary/30 transform hover:-translate-y-0.5">Sign Up</button>
+        <p class="text-center text-gray-400 text-sm mt-4">Already a member? <a href="#" onclick="openLogin(true)" class="text-brand-accent hover:text-brand-primary font-semibold transition-colors">Login</a></p>
+    </div> 
+
+<script src="https://unpkg.com/aos@2.3.1/dist/aos.js"></script>
+<script>
+    // Initialize AOS 
+    AOS.init({
+        duration: 800,
+        easing: 'ease-in-out',
+        once: true,
+        offset: 100,
+        mirror: false
+    });
+    // Set Footer Year
+    document.getElementById('year').textContent = new Date().getFullYear();
+    // Mobile Menu Toggle (from index.js)
+    function toggleMobileMenu() {
+        document.getElementById('mobile-menu').classList.toggle('hidden');
+    }
+</script>
+<script src="nav.js"></script>
+<script src="dashboard.js"></script>
 </body>
 </html>
