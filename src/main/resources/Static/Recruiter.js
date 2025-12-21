@@ -669,6 +669,63 @@ window.saveRequirements = async function() {
     }
 };
 
+window.analyzeCandidates = async function() {
+    // 1. Auth Check
+    const userId = localStorage.getItem('userId');
+    const token = localStorage.getItem('jwtToken');
+
+    if (!userId || !token) {
+        alert("Please login first.");
+        return;
+    }
+
+    // 2. Button State Loading
+    const btn = document.getElementById('analyzeBtn1');
+    const originalText = btn.innerHTML;
+    btn.innerHTML = `<i class="fas fa-spinner fa-spin"></i> Analyzing...`;
+    btn.disabled = true;
+    
+    // 3. User Feedback
+    alert("Analysis started! This uses Gemini AI to read your resumes. Please wait...");
+
+    try {
+        // 4. API Call
+        const baseUrl = CONFIG.API_BASE_URL.replace('/auth', '');
+        const url = `${baseUrl}/resumes/analyze/all/${userId}`;
+        
+        const response = await fetch(url, {
+            method: 'POST',
+            headers: {
+                'Authorization': `Bearer ${token}`
+            }
+        });
+
+        if (response.ok) {
+            const result = await response.json();
+            console.log("Analysis Result:", result);
+            // 5. Success Popup
+            alert(`Analysis Complete!\n\n` +
+                  `✅ Successfully extracted data from: ${result.processed} new resumes.\n` +
+                  `⏭️ Skipped (already analyzed): ${result.skipped}`);
+            
+            // Optional: Redirect to results page
+            // window.location.href = "dashboard.html"; 
+
+        } else {
+            const errorText = await response.text();
+            throw new Error(errorText);
+        }
+        } catch (error) {
+        console.error("Analysis Error:", error);
+        alert("Analysis Failed: " + error.message);
+    } finally {
+        // 6. Reset Button
+        btn.innerHTML = originalText;
+        btn.disabled = false;
+    }
+};
+
+
 // Add this function to Recruiter.js
 
 window.finishAndAnalyze = async function() {
