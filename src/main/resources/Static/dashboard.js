@@ -154,42 +154,12 @@ async function handleSignup() {
 // ===== END Login/Signup Functionality (NEW) =====
 
 
-// ===== Sample Data (CLEANED UP - photo and aiSummary removed) =====
-let rawCandidates = [
-  {id:1,name:"Sarah Johnson",position:"Frontend Developer",score:94,status:"shortlisted", atsBreakdown: {keywords: 90, format: 95, length: 85}},
-  {id:2,name:"Robert Kim",position:"Backend Developer",experience:6,score:91,skillsMatch:"29/30",status:"shortlisted", atsBreakdown: {keywords: 95, format: 85, length: 90}},
-  {id:3,name:"UI Engineer",position:"UI Engineer",experience:4,score:87,skillsMatch:"25/30",status:"consider", atsBreakdown: {keywords: 88, format: 85, length: 86}},
-  {id:4,name:"Lisa Thompson",position:"Frontend Developer",experience:4,score:84,skillsMatch:"26/30",status:"consider", atsBreakdown: {keywords: 80, format: 92, length: 80}},
-  {id:5,name:"David Wilson",position:"Data Scientist",experience:7,score:82,skillsMatch:"24/30",status:"consider", atsBreakdown: {keywords: 90, format: 75, length: 85}},
-  {id:6,name:"Emily Davis",position:"Data Scientist",experience:3,score:78,skillsMatch:"21/30",status:"consider", atsBreakdown: {keywords: 75, format: 80, length: 80}},
-  {id:7,name:"Marcus Bell",position:"Product Manager",experience:8,score:75,skillsMatch:"19/30",status:"consider", atsBreakdown: {keywords: 70, format: 80, length: 75}},
-  {id:8,name:"Anna Lee",position:"Backend Developer",experience:2,score:68,skillsMatch:"15/30",status:"rejected", atsBreakdown: {keywords: 60, format: 75, length: 70}},
-  {id:9,name:"Chris Hall",position:"UI Engineer",experience:5,score:93,skillsMatch:"27/30",status:"shortlisted", atsBreakdown: {keywords: 95, format: 90, length: 95}},
-  {id:10,name:"Jessica Green",position:"Data Scientist",experience:10,score:90,skillsMatch:"30/30",status:"shortlisted", atsBreakdown: {keywords: 92, format: 90, length: 88}},
-  {id:11,name:"Kevin Smith",position:"Frontend Developer",experience:1,score:65,skillsMatch:"12/30",status:"rejected", atsBreakdown: {keywords: 55, format: 65, length: 75}},
-  {id:12,name:"Olivia Rodriguez",position:"Product Manager",experience:6,score:85,skillsMatch:"25/30",status:"consider", atsBreakdown: {keywords: 80, format: 85, length: 90}},
-  {id:13,name:"Thomas Young",position:"Backend Developer",experience:9,score:72,skillsMatch:"18/30",status:"consider", atsBreakdown: {keywords: 65, format: 78, length: 75}},
-  {id:14,name:"Mia Brown",position:"UI Engineer",experience:3,score:79,skillsMatch:"23/30",status:"consider", atsBreakdown: {keywords: 70, format: 85, length: 82}},
-  {id:15,name:"Noah Clark",position:"Product Manager",experience:5,score:88,skillsMatch:"27/30",status:"shortlisted", atsBreakdown: {keywords: 90, format: 85, length: 90}},
-  {id:16,name:"Sophie White",position:"Frontend Developer",experience:7,score:80,skillsMatch:"24/30",status:"consider", atsBreakdown: {keywords: 85, format: 70, length: 85}},
-  {id:17,name:"Ethan King",position:"Backend Developer",experience:4,score:60,skillsMatch:"10/30",status:"rejected", atsBreakdown: {keywords: 50, format: 60, length: 70}},
-  {id:18,name:"Chloe Martinez",position:"Data Scientist",experience:2,score:70,skillsMatch:"18/30",status:"consider", atsBreakdown: {keywords: 65, format: 75, length: 70}},
-  {id:19,name:"Ryan Perez",position:"UI Engineer",experience:6,score:89,skillsMatch:"26/30",status:"shortlisted", atsBreakdown: {keywords: 90, format: 90, length: 87}},
-  {id:20,name:"Zoe Taylor",position:"Frontend Developer",experience:3,score:74,skillsMatch:"20/30",status:"consider", atsBreakdown: {keywords: 75, format: 70, length: 80}},
-  {id:21,name:"Ben Carter",position:"Marketing Specialist",experience:4,score:81,skillsMatch:"22/30",status:"consider", atsBreakdown: {keywords: 80, format: 85, length: 78}},
-  {id:22,name:"Diana Ross",position:"Sales Manager",experience:9,score:76,skillsMatch:"20/30",status:"consider", atsBreakdown: {keywords: 75, format: 70, length: 83}},
-  {id:23,name:"Henry Adams",position:"HR Analyst",experience:3,score:71,skillsMatch:"17/30",status:"rejected", atsBreakdown: {keywords: 65, format: 75, length: 73}},
-  {id:24,name:"Ivy Lin",position:"Project Lead",experience:8,score:92,skillsMatch:"29/30",status:"shortlisted", atsBreakdown: {keywords: 95, format: 90, length: 91}},
-  {id:25,name:"Jack Miller",position:"Data Scientist",experience:5,score:86,skillsMatch:"25/30",status:"consider", atsBreakdown: {keywords: 88, format: 82, length: 85}},
-];
 
-// Reassign to `candidates` for filtering operations
-let candidates = [...rawCandidates];
 
 // DOM elements
-const candidateList = document.getElementById('candidateList');
+
 const sortSelect = document.getElementById('sortSelect');
-const noResults = document.getElementById('noResults');
+
 const detailModal = document.getElementById('detailModal');
 const atsChartCtx = document.getElementById('atsChart');
 const positionCheckboxesContainer = document.getElementById('positionCheckboxes');
@@ -277,6 +247,143 @@ function populatePositionFilter() {
     updateFilterCounts();
 }
 
+let rawCandidates = [];  // Will hold data from backend
+let candidates = [];     // Filtered version
+
+const candidateList = document.getElementById('candidateList');
+const noResults = document.getElementById('noResults');
+const cardTemplate = document.getElementById('cardTemplate');
+
+// ===== Helper Functions =====
+function getScoreColor(score) {
+    if (!score) return 'bg-gray-600 text-white';
+    if (score >= 18) return 'bg-green-500 text-white';
+    if (score >= 15) return 'bg-yellow-500 text-white';
+    if (score >= 10) return 'bg-blue-500 text-white';
+    return 'bg-red-500 text-white';
+}
+
+function formatStatus(status) {
+    if (!status) return 'Pending';
+    return status.charAt(0).toUpperCase() + status.slice(1).toLowerCase();
+}
+
+// ===== Render Candidate Cards from Backend Data =====
+function renderCandidates() {
+    candidateList.innerHTML = '';
+
+    if (rawCandidates.length === 0) {
+        noResults.classList.remove('hidden');
+        return;
+    }
+
+    noResults.classList.add('hidden');
+
+    rawCandidates.forEach(candidate => {
+        const templateContent = cardTemplate.content.cloneNode(true);
+        const card = templateContent.querySelector('.card');
+
+        // Click to open modal (uses candidateId from backend)
+        card.dataset.id = candidate.candidateId;
+
+        // Name
+        card.querySelector('.name').textContent = candidate.candidateName || 'Unknown Candidate';
+
+        // Position / Domain - fallback since not in current backend DTO
+        const positionEl = card.querySelector('.position');
+        positionEl.textContent = candidate.position || 'Software Engineer';
+
+        // Score Pill
+        const scorePill = card.querySelector('.score-pill');
+        const score = candidate.totalScore ?? '—';
+        scorePill.textContent = score;
+        scorePill.className = `score-pill px-4 py-1.5 rounded-full font-bold text-sm shadow-md ${getScoreColor(candidate.totalScore)}`;
+
+        // Replace checkbox + "Shortlist" with Status text
+        const actionsLeft = card.querySelector('.flex.items-center.gap-2');
+        const statusText = formatStatus(candidate.status);
+        const statusColor = candidate.status === 'SHORTLISTED' 
+            ? 'text-green-400' 
+            : candidate.status === 'REJECTED' 
+                ? 'text-red-400' 
+                : 'text-yellow-400';
+
+        actionsLeft.innerHTML = `
+            <span class="text-sm font-medium text-gray-300">Status:</span>
+            <span class="text-sm font-semibold ${statusColor}">${statusText}</span>
+        `;
+
+        // View Profile button with arrow
+        card.querySelector('.view-btn').innerHTML = 
+            `View Profile <i data-feather="arrow-right" class="w-4 h-4 inline ml-1"></i>`;
+
+        candidateList.appendChild(templateContent);
+    });
+
+    // Re-initialize feather icons
+    if (typeof feather !== 'undefined') {
+        feather.replace();
+    }
+}
+
+// ===== Load Data from Backend + Update Stats + Render Cards =====
+async function loadDashboardStats() {
+    const jobId = localStorage.getItem('jobId');
+    const token = localStorage.getItem('jwtToken');
+
+    if (!jobId) {
+        console.warn('No jobId found in localStorage');
+        return;
+    }
+
+    // Loading states
+    document.getElementById('totalCount').textContent = '...';
+    document.getElementById('shortlistCount').textContent = '...';
+    document.getElementById('avgScore').textContent = '...';
+    candidateList.innerHTML = '<div class="col-span-full text-center py-16 text-gray-500">Loading candidates...</div>';
+
+    const baseUrl = CONFIG.API_BASE_URL.replace('/auth', '');
+    const url = `${baseUrl}/dashboard/${jobId}`;
+
+    try {
+        const response = await fetch(url, {
+            method: 'GET',
+            headers: {
+                'Authorization': token ? `Bearer ${token}` : '',
+                'Content-Type': 'application/json'
+            }
+        });
+
+        if (!response.ok) throw new Error(`HTTP ${response.status}`);
+
+        const data = await response.json();
+
+        rawCandidates = data;
+        candidates = [...data];
+
+        // Update top stats
+        const total = data.length;
+        const shortlisted = data.filter(c => c.status?.toUpperCase() === 'SHORTLISTED').length;
+        const validScores = data.filter(c => c.totalScore != null);
+        const avg = validScores.length > 0 
+            ? (validScores.reduce((sum, c) => sum + c.totalScore, 0) / validScores.length).toFixed(1)
+            : '0.0';
+
+        document.getElementById('totalCount').textContent = total;
+        document.getElementById('shortlistCount').textContent = shortlisted;
+        document.getElementById('avgScore').textContent = avg;
+
+        // Render cards
+        renderCandidates();
+
+    } catch (error) {
+        console.error('Failed to load dashboard:', error);
+        candidateList.innerHTML = '<div class="col-span-full text-center py-16 text-red-400">Failed to load candidates</div>';
+        document.getElementById('totalCount').textContent = '—';
+        document.getElementById('shortlistCount').textContent = '—';
+        document.getElementById('avgScore').textContent = '—';
+    }
+}
 
 /**
  * Filters and sorts the candidate list, then re-renders the cards.
@@ -628,5 +735,7 @@ document.addEventListener('DOMContentLoaded', () => {
     
     // Then apply filters and render initial list
     applyFiltersAndSort(); 
+
+    loadDashboardStats();
     
 });

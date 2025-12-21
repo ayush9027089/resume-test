@@ -38,16 +38,21 @@ public class SecurityConfig {
                 .sessionManagement(session -> session.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
                 .authorizeHttpRequests(auth -> auth
 
-                        // ✅ Health check allow
-                        .requestMatchers("/api/health/**").permitAll()
-
-                        // Your existing allowed APIs
-                        .requestMatchers("/api/auth/**").permitAll()
-                        .requestMatchers("/api/resumes/**").permitAll() 
-                        .requestMatchers("/api/job-postings/**").permitAll()
-                        .requestMatchers("/api/candidates/**").permitAll()
+                        .requestMatchers("/api/auth/**", "/api/register", "/api/login").permitAll()// allow login/register
+                        .requestMatchers("/api/resumes/upload/**").permitAll()
+                        .requestMatchers("/api/resumes/analyze/all/**").permitAll()
+                        .requestMatchers("api/job-postings/upload/**").permitAll()
+                        .requestMatchers("api/job-postings/save-requirements/**").permitAll()
                         .requestMatchers("/api/score/**").permitAll()
-                        .anyRequest().authenticated()
+                        .requestMatchers("/api/dashboard/**").permitAll()  // ← ADD THIS LINE
+//                        .requestMatchers("/api/**").authenticated()
+//                        .requestMatchers("/api/resumes/upload/**").authenticated()  // or .hasRole("RECRUITER")
+//                        .requestMatchers("/api/resumes/analyze/all/**").authenticated()
+//                        .requestMatchers("/api/job-postings/upload/**").authenticated()
+//                        .requestMatchers("/api/job-postings/save-requirements/**").authenticated()
+//                        .requestMatchers("/api/score/**").authenticated()
+//                        .requestMatchers("/api/dashboard/**").authenticated()// protect your API
+                        .anyRequest().permitAll()
                 )
                 .addFilterBefore(jwtAuthenticationFilter, UsernamePasswordAuthenticationFilter.class);
 

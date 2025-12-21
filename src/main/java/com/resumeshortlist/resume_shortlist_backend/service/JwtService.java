@@ -4,6 +4,7 @@ import io.jsonwebtoken.Claims;
 import io.jsonwebtoken.Jwts;
 import io.jsonwebtoken.io.Decoders;
 import io.jsonwebtoken.security.Keys;
+import lombok.RequiredArgsConstructor;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.stereotype.Service;
 
@@ -14,12 +15,11 @@ import java.util.Map;
 import java.util.function.Function;
 
 @Service
+@RequiredArgsConstructor
 public class JwtService {
 
     // 512-bit Secret Key (Strong enough for HS512)
-    private static final String SECRET_KEY = 
-        "404E635266556A586E3272357538782F413F4428472B4B6250645367566B5970" +
-        "337336763979244226452948404D635166546A576E5A7234753778214125442A";
+    private static final String SECRET_KEY = "20572f8f26d8676d82ed563e949c5bc273622c8e84a26973726cbef0086ef4803d8d0e77e42ca78ed76910b0e70e0054b4677cc0aa132eecafc22e51675bdf7d";
 
     public String extractUsername(String token) {
         return extractClaim(token, Claims::getSubject);
