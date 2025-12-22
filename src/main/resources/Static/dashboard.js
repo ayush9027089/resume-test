@@ -382,12 +382,58 @@ async function loadDashboardStats() {
     }
 }
 
+document.getElementById('exportBtn').addEventListener('click', () => {
+    if (candidates.length === 0) {
+        alert("No data available to export.");
+        return;
+    }
+
+    // Define CSV Headers
+    const headers = ["Name", "Position", "Total Score", "Status"];
+    
+    // Map candidate data to rows
+    const rows = candidates.map(c => [
+        `"${c.candidateName || c.name}"`, 
+        `"${c.position}"`, 
+        c.totalScore || c.score, 
+        c.status
+    ]);
+
+    // Construct CSV content
+    const csvContent = [headers, ...rows].map(e => e.join(",")).join("\n");
+    
+    // Create download link
+    const blob = new Blob([csvContent], { type: 'text/csv;charset=utf-8;' });
+    const url = URL.createObjectURL(blob);
+    const link = document.createElement("a");
+    link.setAttribute("href", url);
+    link.setAttribute("download", `Candidate_Export_${new Date().toISOString().split('T')[0]}.csv`);
+    document.body.appendChild(link);
+    link.click();
+    document.body.removeChild(link);
+});
+document.getElementById('downloadSelectedBtn').addEventListener('click', () => {
+    // Check if any candidates are filtered
+    if (candidates.length === 0) {
+        alert("No candidates selected to download.");
+        return;
+    }
+
+    // Logic: If you have resume URLs in your data, you can open them in new tabs
+    // Or, trigger a print-friendly summary of the current list
+    const confirmDownload = confirm(`Prepare batch summary for ${candidates.length} candidates?`);
+    
+    if (confirmDownload) {
+        // Simple implementation: Open the browser print dialog for the candidate list
+        window.print();
+    }
+});
 /**
  * Filters and sorts the candidate list, then re-renders the cards.
  */
 function applyFiltersAndSort() {
     const searchInput = document.getElementById('searchInput').value.toLowerCase();
-    const sortValue = sortSelect.value;
+   
     
     // Get checked values from the new checkbox groups
     const selectedPositions = getCheckedValues('positionFilter');
@@ -431,16 +477,7 @@ function applyFiltersAndSort() {
         return true;
     });
 
-    // 2. Sorting
-    candidates.sort((a, b) => {
-        switch (sortValue) {
-            case 'score_desc': return b.score - a.score;
-            case 'score_asc': return a.score - b.score;
-            case 'experience_desc': return b.experience - a.experience;
-            case 'experience_asc': return a.experience - b.experience;
-            default: return b.score - a.score;
-        }
-    });
+   
 
     // 3. Rendering
     renderCandidateCards(candidates);
@@ -664,7 +701,7 @@ filterSidebar.addEventListener('change', (e) => {
 document.getElementById('searchInput').addEventListener('input', applyFiltersAndSort);
 
 // Listener for sort dropdown (UNCHANGED)
-sortSelect.addEventListener('change', applyFiltersAndSort);
+
 
 // LIST OF ALL POTENTIAL POSITIONS FOR THE RANDOM GENERATOR (UPDATED)
 const allPositions = [
@@ -681,23 +718,7 @@ const allPositions = [
 
 
 // Add sample candidate (CLEANED UP - photo and aiSummary removed)
-document.getElementById('addCandidates').addEventListener('click', () => {
-  const nextId = rawCandidates.length ? Math.max(...rawCandidates.map(x => x.id)) + 1 : 1;
-  const sample = {
-    id: nextId,
-    name: `New Candidate ${nextId}`,
-    position: allPositions[Math.floor(Math.random() * allPositions.length)], // Use expanded list
-    experience: Math.floor(Math.random() * 7) + 1,
-    score: Math.floor(Math.random() * 30) + 60,
-    skillsMatch: `${Math.floor(Math.random() * 10) + 15}/30`,
-    status: "consider",
-    atsBreakdown: {keywords: Math.floor(Math.random() * 30) + 60, format: Math.floor(Math.random() * 30) + 60, length: Math.floor(Math.random() * 30) + 60}
-  };
-  rawCandidates.push(sample);
-  // Re-run the initial population/filter to include the new position/candidate
-  populatePositionFilter(); 
-  applyFiltersAndSort(); 
-});
+
 
 
 // ===== Scroll to Top Functionality (EXISTING) =====
