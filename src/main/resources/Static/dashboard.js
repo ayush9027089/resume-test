@@ -382,6 +382,52 @@ async function loadDashboardStats() {
     }
 }
 
+document.getElementById('exportBtn').addEventListener('click', () => {
+    if (candidates.length === 0) {
+        alert("No data available to export.");
+        return;
+    }
+
+    // Define CSV Headers
+    const headers = ["Name", "Position", "Total Score", "Status"];
+    
+    // Map candidate data to rows
+    const rows = candidates.map(c => [
+        `"${c.candidateName || c.name}"`, 
+        `"${c.position}"`, 
+        c.totalScore || c.score, 
+        c.status
+    ]);
+
+    // Construct CSV content
+    const csvContent = [headers, ...rows].map(e => e.join(",")).join("\n");
+    
+    // Create download link
+    const blob = new Blob([csvContent], { type: 'text/csv;charset=utf-8;' });
+    const url = URL.createObjectURL(blob);
+    const link = document.createElement("a");
+    link.setAttribute("href", url);
+    link.setAttribute("download", `Candidate_Export_${new Date().toISOString().split('T')[0]}.csv`);
+    document.body.appendChild(link);
+    link.click();
+    document.body.removeChild(link);
+});
+document.getElementById('downloadSelectedBtn').addEventListener('click', () => {
+    // Check if any candidates are filtered
+    if (candidates.length === 0) {
+        alert("No candidates selected to download.");
+        return;
+    }
+
+    // Logic: If you have resume URLs in your data, you can open them in new tabs
+    // Or, trigger a print-friendly summary of the current list
+    const confirmDownload = confirm(`Prepare batch summary for ${candidates.length} candidates?`);
+    
+    if (confirmDownload) {
+        // Simple implementation: Open the browser print dialog for the candidate list
+        window.print();
+    }
+});
 /**
  * Filters and sorts the candidate list, then re-renders the cards.
  */
