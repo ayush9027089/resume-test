@@ -766,7 +766,6 @@ window.finishAndAnalyze = async function() {
 
         if (response.ok) {
             const result = await response.json();
-            alert(`Analysis triggered successfully! Job ID: ${jobId}\nMessage: ${result.message}`);
             // Optional: Redirect to dashboard.html to view results
             window.location.href = 'dashboard.html';
         } else {
