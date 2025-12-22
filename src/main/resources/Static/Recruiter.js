@@ -452,8 +452,6 @@ window.uploadResumesToBackend = async function() {
                 statusSpan.classList.add('text-green-400');
             });
         }
-
-        alert("Upload completed.");
         const statusBadge = document.getElementById('uploadStatus');
         if (statusBadge) {
             statusBadge.classList.remove('hidden');
@@ -539,8 +537,6 @@ window.uploadJDToBackend = async function() {
             localStorage.setItem('jobId', job.id);
             localStorage.setItem('activeJobId', job.id);
             localStorage.setItem('activeJobDept', uploadedJobDepartment);
-
-            alert(`Success! JD Analyzed. Extracted Department: ${uploadedJobDepartment}`);
             
             document.getElementById('jdUploadStatus').classList.remove('hidden');
             btn.innerHTML = `<i class="fas fa-check"></i> Done`;
@@ -652,7 +648,8 @@ window.saveRequirements = async function() {
         }
 
         if (response.ok) {
-            alert(`Requirements saved successfully!\n(Job ID: ${result.jobId || uploadedJobId})`);
+            // After successful save (inside the if (response.ok) block)
+            localStorage.setItem('activeJobDept', selectedDomain);
         } else {
             throw new Error(result.error || result.message || "Unknown Error");
         }
@@ -684,9 +681,6 @@ window.analyzeCandidates = async function() {
     const originalText = btn.innerHTML;
     btn.innerHTML = `<i class="fas fa-spinner fa-spin"></i> Analyzing...`;
     btn.disabled = true;
-    
-    // 3. User Feedback
-    alert("Analysis started! This uses Gemini AI to read your resumes. Please wait...");
 
     try {
         // 4. API Call
@@ -704,9 +698,6 @@ window.analyzeCandidates = async function() {
             const result = await response.json();
             console.log("Analysis Result:", result);
             // 5. Success Popup
-            alert(`Analysis Complete!\n\n` +
-                  `✅ Successfully extracted data from: ${result.processed} new resumes.\n` +
-                  `⏭️ Skipped (already analyzed): ${result.skipped}`);
             
             // Optional: Redirect to results page
             // window.location.href = "dashboard.html"; 
@@ -766,7 +757,6 @@ window.finishAndAnalyze = async function() {
 
         if (response.ok) {
             const result = await response.json();
-            alert(`Analysis triggered successfully! Job ID: ${jobId}\nMessage: ${result.message}`);
             // Optional: Redirect to dashboard.html to view results
             window.location.href = 'dashboard.html';
         } else {

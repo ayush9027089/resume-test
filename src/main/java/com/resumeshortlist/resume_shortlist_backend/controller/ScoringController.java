@@ -5,7 +5,6 @@
 package com.resumeshortlist.resume_shortlist_backend.controller;
 
 import com.resumeshortlist.resume_shortlist_backend.dto.DashboardResponse;
-import com.resumeshortlist.resume_shortlist_backend.entity.CandidateScore;
 import com.resumeshortlist.resume_shortlist_backend.repository.CandidateScoreRepository;
 import com.resumeshortlist.resume_shortlist_backend.service.ScoringService;
 import org.springframework.http.ResponseEntity;
@@ -14,6 +13,8 @@ import org.springframework.web.bind.annotation.*;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
+
+@CrossOrigin(origins = "*")
 
 @RestController
 @RequestMapping("/api")

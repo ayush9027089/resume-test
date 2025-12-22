@@ -14,7 +14,6 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.io.File;
-import java.io.FileOutputStream;
 import java.io.IOException;
 import java.time.LocalDateTime;
 import java.util.*;
@@ -122,119 +121,6 @@ public class JobPostingController {
     public ResponseEntity<String> deleteJobById(@PathVariable Long id) {
         return ResponseEntity.ok(jobPostingService.deleteJobById(id));
     }
-
-//    @PostMapping("/upload")
-//    public ResponseEntity<?> uploadJobPostings(
-//            @RequestParam("file") MultipartFile[] files,
-//            @RequestParam("userId") Long userId) {
-//
-//        try {
-//            User user = userRepository.findById(userId)
-//                    .orElseThrow(() -> new RuntimeException("User not found"));
-//
-//            List<Map<String, Object>> responseList = new ArrayList<>();
-//            String uploadDir = "uploads/job_descriptions/";
-//            File folder = new File(uploadDir);
-//            if (!folder.exists()) folder.mkdirs();
-//
-//            for (MultipartFile file : files) {
-//                // 1. Save File
-//                String uniqueName = UUID.randomUUID() + "_" + file.getOriginalFilename();
-//                File dest = new File(uploadDir + uniqueName);
-//                try (FileOutputStream fos = new FileOutputStream(dest)) {
-//                    fos.write(file.getBytes());
-//                }
-//
-//                // 2. Parse (Not uses Gemini)
-//                JobPosting extractedData = jobDescriptionParsingService.parseJobDescription(dest);
-//
-//                // 3. Create Entity
-//                JobPosting jp = new JobPosting();
-//                jp.setTitle(extractedData.getTitle() != null ? extractedData.getTitle() : file.getOriginalFilename());
-//                jp.setDepartment(extractedData.getDepartment());
-//                jp.setDescription(extractedData.getDescription() != null ? extractedData.getDescription() : "Uploaded via File");
-//                jp.setMinExperienceYears(extractedData.getMinExperienceYears());
-//                jp.setEducationLevel(extractedData.getEducationLevel());
-//
-//                // Metadata
-//                jp.setFileName(file.getOriginalFilename());
-//                jp.setFilePath(dest.getAbsolutePath());
-//                jp.setFileType(file.getContentType());
-//                jp.setCreatedBy(user);
-//                jp.setCreatedAt(LocalDateTime.now());
-//
-//                // 4. Save to DB
-//                JobPosting savedJob = jobPostingRepository.save(jp);
-//
-//                // 5. Build Safe Response (Manual Map to prevent JSON errors)
-//                Map<String, Object> jobMap = new HashMap<>();
-//                jobMap.put("id", savedJob.getId());
-//                jobMap.put("title", savedJob.getTitle());
-//                jobMap.put("department", savedJob.getDepartment());
-//                jobMap.put("description", savedJob.getDescription());
-//
-//                responseList.add(jobMap);
-//            }
-//
-//            return ResponseEntity.ok(responseList.get(0));
-//
-//
-//        } catch (Exception e) {
-//            e.printStackTrace();
-//            return ResponseEntity.status(500).body("JD Upload & Analysis Failed: " + e.getMessage());
-//        }
-//    }
-
-
-//    @PostMapping("/upload")
-//    public ResponseEntity<?> uploadJobPosting(
-//            @RequestParam("file") MultipartFile file,
-//            @RequestParam("userId") Long userId) {
-//
-//        try {
-//
-//            User user = userRepository.findById(userId)
-//                    .orElseThrow(() -> new RuntimeException("User not found"));
-//
-//            String uploadDir = "uploads/job_descriptions/";
-//            File folder = new File(uploadDir);
-//            if (!folder.exists()) folder.mkdirs();
-//
-//            String uniqueName = UUID.randomUUID() + "_" + file.getOriginalFilename();
-//            File dest = new File(uploadDir + uniqueName);
-//
-//            try (FileOutputStream fos = new FileOutputStream(dest)) {
-//                fos.write(file.getBytes());
-//            }
-//
-//            JobPosting extractedData = jobDescriptionParsingService.parseJobDescription(dest);
-//
-//            JobPosting jp = new JobPosting();
-//            jp.setTitle(extractedData.getTitle() != null ? extractedData.getTitle() : file.getOriginalFilename());
-//            jp.setDepartment(extractedData.getDepartment());
-//            jp.setDescription(extractedData.getDescription() != null ? extractedData.getDescription() : "Uploaded via File");
-//
-//            jp.setMinExperienceYears(extractedData.getMinExperienceYears());
-//            jp.setEducationLevel(extractedData.getEducationLevel());
-//
-//            jp.setFileName(file.getOriginalFilename());
-//            jp.setFilePath(dest.getAbsolutePath());
-//            jp.setFileType(file.getContentType());
-//            jp.setCreatedBy(user);
-//            jp.setCreatedAt(LocalDateTime.now());
-//
-//            JobPosting savedJob = jobPostingRepository.save(jp);
-//
-//            Map<String, Object> jobMap = new HashMap<>();
-//            jobMap.put("id", savedJob.getId());
-//            jobMap.put("department", savedJob.getDepartment());
-//
-//            return ResponseEntity.ok(jobMap);
-//
-//        } catch (Exception e) {
-//            return ResponseEntity.status(500).body("JD Upload Failed: " + e.getMessage());
-//        }
-//    }
 
     private static final Logger logger = LoggerFactory.getLogger(JobPostingController.class);
 
