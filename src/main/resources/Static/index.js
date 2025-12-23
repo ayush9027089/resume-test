@@ -105,7 +105,7 @@ async function handleSignup() {
     });
     
     if (response.ok) {
-      alert("Registration successful! Please login.");
+      
       closePopup();
       openLogin();
     } else {
@@ -143,7 +143,6 @@ async function handleLogin() {
       const data = await response.json();
       localStorage.setItem("jwtToken", data.token);
       window.location.href = "index.html";
-      alert("Login successful!");
     } else {
       const errorMessage = await response.text();
       alert("Login Failed: " + errorMessage);

@@ -74,7 +74,6 @@ async function handleLogin() {
             localStorage.setItem('userId', data.userId);
             localStorage.setItem('userName', data.name || email.split('@')[0]);
             
-            alert("Login successful!");
             window.location.href = "profile.html";
         } else {
             const errorMessage = await response.text();
