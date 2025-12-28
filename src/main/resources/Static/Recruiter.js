@@ -2,6 +2,13 @@
  * Recruiter.js
  * Handles AOS init, Popups, File Uploads, and Skill Management
  */
+window.uploadJDToBackend = async function() {
+    // Naya JD upload karne se pehle purana data clear karein
+    localStorage.removeItem('activeJobId');
+    localStorage.removeItem('jobId');
+    
+    // ... baki ka upload logic yahan se shuru hoga
+}
 
 document.addEventListener('DOMContentLoaded', () => {
     
@@ -474,7 +481,7 @@ window.uploadResumesToBackend = async function() {
 };
 
 
-let uploadedJobId = null;
+var uploadedJobId = null;
 let uploadedJobDepartment = null;
 
 
@@ -777,3 +784,188 @@ window.finishAndAnalyze = async function() {
    
 };
 
+
+// Global state for session persistence
+if (typeof uploadedJobId === 'undefined') {
+    var uploadedJobId = localStorage.getItem('activeJobId') || null;
+}
+
+window.uploadJDToBackend = async function() {
+    console.log("Starting JD Upload & Analysis...");
+    
+    // Naya JD upload karne se pehle purana data clear karein
+    localStorage.removeItem('activeJobId');
+    localStorage.removeItem('jobId');
+    uploadedJobId = null; 
+
+    const userId = localStorage.getItem('userId');
+    const token = localStorage.getItem('jwtToken');
+
+    if (!userId || !token) {
+        alert("Please login first.");
+        return;
+    }
+
+    const jdInput = document.getElementById('jdInput');
+    const files = jdInput.files;
+
+    if (files.length === 0) {
+        alert("Please select Job Description files first!");
+        return;
+    }
+    
+    const formData = new FormData();
+    formData.append("file", files[0]);
+    formData.append("userId", userId);
+    
+    const baseUrl = CONFIG.API_BASE_URL.replace('/auth', ''); 
+    const uploadUrl = `${baseUrl}/job-postings/upload`;
+    
+    const btn = document.querySelector('button[onclick="uploadJDToBackend()"]');
+    const originalContent = btn.innerHTML;
+    btn.innerHTML = `<i class="fas fa-spinner fa-spin"></i> Analyzing...`;
+    btn.disabled = true;
+
+    try {
+        const response = await fetch(uploadUrl, {
+            method: 'POST',
+            body: formData
+        });
+
+        if (response.ok) {
+            const job = await response.json();
+            uploadedJobId = job.id;
+            const dept = job.department || job.title || "";
+            
+            localStorage.setItem('jobId', job.id);
+            localStorage.setItem('activeJobId', job.id);
+            localStorage.setItem('activeJobDept', dept);
+            
+            document.getElementById('jdUploadStatus').classList.remove('hidden');
+            btn.innerHTML = `<i class="fas fa-check"></i> Done`;
+            
+            setTimeout(() => {
+                btn.innerHTML = originalContent;
+                btn.disabled = false;
+            }, 3000);
+        } else {
+            throw new Error(await response.text());
+        }
+    } catch (error) {
+        console.error(error);
+        alert("Upload Failed: " + error.message);
+        btn.innerHTML = originalContent;
+        btn.disabled = false;
+    }
+};
+
+window.saveRequirements = async function() {
+    const jobDomainSelect = document.getElementById('jobDomainSelect');
+    const selectedDomain = jobDomainSelect.value;
+    const skillTags = document.querySelectorAll('#skillTags span');
+    
+    // Clean up skill text - Remove the 'X' icon text and extra spaces
+    const skills = Array.from(skillTags).map(tag => {
+        return tag.innerText.replace('×', '').replace('\n', '').trim();
+    });
+
+    const userId = localStorage.getItem('userId');
+    const token = localStorage.getItem('jwtToken');
+    const currentJobId = uploadedJobId || localStorage.getItem('activeJobId');
+
+    if (!userId || !token) { alert("Please login first."); return; }
+    if (!currentJobId) { alert("Please upload a Job Description first."); return; }
+    if (!selectedDomain || selectedDomain === "Select Domain") { alert("Please select a Job Domain."); return; }
+    if (skills.length === 0) { alert("Please add at least one skill."); return; }
+
+    const baseUrl = CONFIG.API_BASE_URL.replace('/auth', '');
+    const url = `${baseUrl}/job-postings/save-requirements`;
+
+    const saveBtn = document.querySelector('button[onclick="saveRequirements()"]');
+    if (saveBtn) {
+        saveBtn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Saving...';
+        saveBtn.disabled = true;
+    }
+
+    try {
+        const response = await fetch(url, {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+                'Authorization': `Bearer ${token}`
+            },
+            body: JSON.stringify({
+                jobId: currentJobId, 
+                userId: userId, 
+                jobDomain: selectedDomain,
+                skills: skills
+            })
+        });
+
+        if (response.ok) {
+            localStorage.setItem('activeJobDept', selectedDomain);
+            alert("Requirements saved successfully!");
+        } else {
+            const err = await response.text();
+            throw new Error(err);
+        }
+    } catch (e) {
+        alert("Failed to save: " + e.message);
+    } finally {
+        if (saveBtn) {
+            saveBtn.innerHTML = 'Save Requirements';
+            saveBtn.disabled = false;
+        }
+    }
+};
+
+window.finishAndAnalyze = async function() {
+    const jobId = localStorage.getItem('activeJobId');
+    const userId = localStorage.getItem('userId');
+    const token = localStorage.getItem('jwtToken');
+
+    console.log("Job ID:", jobId, "User ID:", userId); // Debugging ke liye
+
+    if (!jobId || !userId) {
+        alert("Pehle JD upload karein aur Login confirm karein.");
+        return;
+    }
+
+    try {
+        const baseUrl = CONFIG.API_BASE_URL.replace('/auth', '');
+        
+        // Step A: Candidates check karein
+        const res = await fetch(`${baseUrl}/resumes/user/${userId}`, { 
+            headers: { 'Authorization': `Bearer ${token}` } 
+        });
+        
+        const candidates = await res.json();
+        console.log("Found Candidates:", candidates); // Console mein check karein ye empty toh nahi?
+
+        if (!candidates || candidates.length === 0) {
+            alert("Database mein koi candidate nahi mila. Pehle resumes upload karein!");
+            return;
+        }
+
+        const candidateIds = candidates.map(c => c.id);
+
+        // Step B: Scoring Trigger
+        const scoreRes = await fetch(`${baseUrl}/score/${jobId}`, {
+            method: 'POST',
+            headers: { 
+                'Content-Type': 'application/json', 
+                'Authorization': `Bearer ${token}` 
+            },
+            body: JSON.stringify(candidateIds)
+        });
+
+        if (scoreRes.ok) {
+            window.location.href = 'dashboard.html';
+        } else {
+            const errorData = await scoreRes.json();
+            alert("Scoring Error: " + JSON.stringify(errorData));
+        }
+    } catch (error) {
+        console.error("Final Analysis Error:", error);
+    }
+};

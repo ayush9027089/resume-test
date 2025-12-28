@@ -19,7 +19,7 @@
     <link href="https://unpkg.com/aos@2.3.1/dist/aos.css" rel="stylesheet">
     
     <script src="config.js"></script>
-    <script src="nav.js"></script>
+
     <script>
         tailwind.config = {
             theme: {
@@ -328,6 +328,27 @@ fileInput.addEventListener('change', function() {
         remainingCountSpan.innerText = remaining;
     }
 });
+
+// Example of how to call the API correctly
+const triggerScoring = async (jobId, candidateIds) => {
+    try {
+        const response = await fetch(`http://localhost:8080/api/score/${jobId}`, {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json', // 👈 Ye header hona bahut zaroori hai
+            },
+            body: JSON.stringify(candidateIds) // 👈 candidateIds ek array hona chahiye [101, 102]
+        });
+        
+        if (response.ok) {
+            alert("Scoring Successful!");
+            window.location.reload(); // Dashboard refresh karne ke liye
+        }
+    } catch (error) {
+        console.error("Error triggering score:", error);
+    }
+};
+
 </script>
     <script src="https://unpkg.com/aos@2.3.1/dist/aos.js"></script>
     <script src="Recruiter.js"></script>

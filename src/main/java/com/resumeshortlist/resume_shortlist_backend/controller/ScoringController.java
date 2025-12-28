@@ -30,22 +30,42 @@ public class ScoringController {
     }
 
     // 1. Trigger Scoring (Existing endpoint - no changes needed, but added better response handling)
-    @PostMapping("/score/{jobId}")
-    public ResponseEntity<?> triggerScoring(@PathVariable Long jobId) {
-        try {
-            scoringService.triggerScoring(jobId);
-            return ResponseEntity.accepted().body(Map.of(
-                    "message", "Scoring started in background",
-                    "jobId", jobId,
-                    "startedAt", java.time.LocalDateTime.now()
-            ));
-        } catch (Exception e) {
-            return ResponseEntity.badRequest().body(Map.of(
-                    "error", "Failed to trigger scoring: " + e.getMessage()
-            ));
-        }
-    }
+    // @PostMapping("/score/{jobId}")
+    // public ResponseEntity<?> triggerScoring(@PathVariable Long jobId) {
+    //     try {
+    //         scoringService.triggerScoring(jobId);
+    //         return ResponseEntity.accepted().body(Map.of(
+    //                 "message", "Scoring started in background",
+    //                 "jobId", jobId,
+    //                 "startedAt", java.time.LocalDateTime.now()
+    //         ));
+    //     } catch (Exception e) {
+    //         return ResponseEntity.badRequest().body(Map.of(
+    //                 "error", "Failed to trigger scoring: " + e.getMessage()
+    //         ));
+    //     }
+    // }
 
+    @PostMapping("/score/{jobId}")
+public ResponseEntity<?> triggerScoring(@PathVariable Long jobId, @RequestBody List<Long> candidateIds) { // @RequestBody add kiya
+    try {
+        if (candidateIds == null || candidateIds.isEmpty()) {
+            return ResponseEntity.badRequest().body(Map.of("error", "Candidate IDs ki list khali hai"));
+        }
+        // Ab hum service ko jobId aur sirf wahi IDs bhej rahe hain jo abhi upload huye hain
+        scoringService.triggerScoring(jobId, candidateIds); 
+        
+        return ResponseEntity.accepted().body(Map.of(
+                "message", "Scoring started for " + candidateIds.size() + " candidates",
+                "jobId", jobId,
+                "startedAt", java.time.LocalDateTime.now()
+        ));
+    } catch (Exception e) {
+        return ResponseEntity.badRequest().body(Map.of(
+                "error", "Failed to trigger scoring: " + e.getMessage()
+        ));
+    }
+}
     // 2. Dashboard (Existing - no changes)
     @GetMapping("/dashboard/{jobId}")
     public ResponseEntity<List<DashboardResponse>> getDashboard(@PathVariable Long jobId) {
