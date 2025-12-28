@@ -231,18 +231,18 @@ document.getElementById('exportBtn').addEventListener('click', () => {
     URL.revokeObjectURL(url); // Clean up
 });
 // Batch Resume placeholder
-document.getElementById('downloadSelectedBtn').addEventListener('click', () => {
-    if (rawCandidates.length === 0) {
-        alert("No candidates to download.");
-        return;
-    }
+// document.getElementById('downloadSelectedBtn').addEventListener('click', () => {
+//     if (rawCandidates.length === 0) {
+//         alert("No candidates to download.");
+//         return;
+//     }
 
-    const confirmDownload = confirm(`Prepare batch summary for ${rawCandidates.length} candidates?`);
+//     const confirmDownload = confirm(`Prepare batch summary for ${rawCandidates.length} candidates?`);
     
-    if (confirmDownload) {
-        window.print(); // Opens print dialog with current candidate list
-    }
-});
+//     if (confirmDownload) {
+//         window.print(); // Opens print dialog with current candidate list
+//     }
+// });
 
 
 // Filters
