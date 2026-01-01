@@ -144,14 +144,24 @@ async function handleSignup() {
     }
 }
 
+// function handleRecruiterClick() {
+//     const token = localStorage.getItem('jwtToken');
+//     const role = localStorage.getItem('role');
+    
+//     if (token && (role === 'HR' || role === 'Admin')) {
+//         window.location.href = "Recruiter.html";
+//     } else {
+//         alert("Access Denied: Only HR/Admin can access the Recruiter Dashboard.");
+//     }
+// }
+
 function handleRecruiterClick() {
     const token = localStorage.getItem('jwtToken');
-    const role = localStorage.getItem('role');
-    
-    if (token && (role === 'HR' || role === 'Admin')) {
+
+    if (token) {
         window.location.href = "Recruiter.html";
     } else {
-        alert("Access Denied: Only HR/Admin can access the Recruiter Dashboard.");
+        alert("Access Denied: Please login first.");
     }
 }
 
