@@ -7,16 +7,13 @@ import com.resumeshortlist.resume_shortlist_backend.repository.ResumeRepository;
 import com.resumeshortlist.resume_shortlist_backend.repository.UserRepository;
 import org.apache.tika.Tika;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.beans.factory.annotation.Value;
+
 import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
 
 import java.io.File;
 import java.io.FileOutputStream;
-import java.io.IOException;
-import java.nio.file.Files;
-import java.nio.file.Path;
-import java.nio.file.Paths;
+
 import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
@@ -32,7 +29,9 @@ public class FileUploadService {
     private UserRepository userRepository;
 
     private final Tika tika = new Tika();
-    private final String uploadDir = "uploads/resumes/";
+    String uploadDir = System.getProperty("user.dir")
+                + File.separator + "uploads"
+                + File.separator + "resumes";
 
     public FileUploadService(ResumeRepository resumeRepository, UserRepository userRepository) {
         this.resumeRepository = resumeRepository;
@@ -46,7 +45,6 @@ public class FileUploadService {
                 .orElseThrow(() -> new RuntimeException("Invalid user ID"));
 
         for (MultipartFile file : files) {
-
             // 1️⃣ Save file physically
             File savedFile = saveFileToLocal(file);
 
