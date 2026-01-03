@@ -125,89 +125,71 @@ public class JobPostingController {
     private static final Logger logger = LoggerFactory.getLogger(JobPostingController.class);
 
     @PostMapping("/upload")
-    public ResponseEntity<?> uploadJobPosting(
-            @RequestParam("file") MultipartFile file,
-            @RequestParam("userId") Long userId) {
+public ResponseEntity<?> uploadJobPosting(
+        @RequestParam("file") MultipartFile file,
+        @RequestParam("userId") Long userId) {
 
-        logger.info("=== JD UPLOAD STARTED ===");
-        logger.info("Received file: name={}, size={} bytes, contentType={}",
-                file.getOriginalFilename(), file.getSize(), file.getContentType());
-        logger.info("Requested by userId: {}", userId);
+    logger.info("=== JD UPLOAD STARTED ===");
 
-        try {
-            User user = userRepository.findById(userId)
-                    .orElseThrow(() -> new RuntimeException("User not found"));
-            logger.info("User found: id={}, email={}", user.getId(), user.getEmail());
+    try {
+        User user = userRepository.findById(userId)
+                .orElseThrow(() -> new RuntimeException("User not found"));
 
-            // CHANGE HERE: Use an absolute path outside the project
-            String uploadDir = "C:/uploads/job_descriptions/";  // <-- Change this to your preferred location
-            // Example alternatives:
-            // "D:/app_uploads/job_descriptions/"
-            // Or on another drive/machine if needed
+        // ✅ CORRECT UPLOAD DIRECTORY (project-root/uploads/job_descriptions)
+        String uploadDir = System.getProperty("user.dir")
+                + File.separator + "uploads"
+                + File.separator + "job_descriptions";
 
-            File uploadFolder = new File(uploadDir);
-            if (!uploadFolder.exists()) {
-                boolean created = uploadFolder.mkdirs();
-                logger.info("Creating absolute upload directory: {} -> success={}", uploadFolder.getAbsolutePath(), created);
-                if (!created) {
-                    throw new IOException("Failed to create upload directory: " + uploadFolder.getAbsolutePath());
-                }
+        File uploadFolder = new File(uploadDir);
+        if (!uploadFolder.exists()) {
+            boolean created = uploadFolder.mkdirs();
+            logger.info("Upload directory created: {} -> {}", uploadFolder.getAbsolutePath(), created);
+            if (!created) {
+                throw new IOException("Could not create upload directory");
             }
-
-            String uniqueName = UUID.randomUUID() + "_" + file.getOriginalFilename();
-            File dest = new File(uploadDir + uniqueName);
-
-            logger.info("Target file path: {}", dest.getAbsolutePath());
-
-            // Save file
-            try {
-                file.transferTo(dest);
-                logger.info("File successfully saved to disk");
-            } catch (IOException e) {
-                logger.error("Failed to save uploaded file", e);
-                return ResponseEntity.status(500)
-                        .body("JD Upload Failed: Unable to save file - " + e.getMessage());
-            }
-
-            // Parse with Gemini
-            logger.info("Starting Gemini parsing...");
-            JobPosting extractedData = jobDescriptionParsingService.parseJobDescription(dest);
-
-            logger.info("Gemini Results -> Title: {}, Department: {}, Education: {}, MinExp: {}",
-                    extractedData.getTitle(), extractedData.getDepartment(),
-                    extractedData.getEducationLevel(), extractedData.getMinExperienceYears());
-
-            // Build and save entity (same as before)
-            JobPosting jp = new JobPosting();
-            jp.setTitle(extractedData.getTitle() != null ? extractedData.getTitle() : file.getOriginalFilename());
-            jp.setDepartment(extractedData.getDepartment());
-            jp.setDescription(extractedData.getDescription() != null ? extractedData.getDescription() : "Uploaded via File");
-            jp.setMinExperienceYears(extractedData.getMinExperienceYears());
-            jp.setEducationLevel(extractedData.getEducationLevel());
-            jp.setFileName(file.getOriginalFilename());
-            jp.setFilePath(dest.getAbsolutePath());
-            jp.setFileType(file.getContentType());
-            jp.setCreatedBy(user);
-            jp.setCreatedAt(LocalDateTime.now());
-
-            JobPosting savedJob = jobPostingRepository.save(jp);
-            logger.info("Job saved to DB - ID: {}", savedJob.getId());
-
-            Map<String, Object> response = new HashMap<>();
-            response.put("id", savedJob.getId());
-            response.put("title", savedJob.getTitle());
-            response.put("department", savedJob.getDepartment());
-            response.put("educationLevel", savedJob.getEducationLevel());
-            response.put("message", "Upload successful");
-
-            logger.info("=== JD UPLOAD SUCCESSFUL ===");
-            return ResponseEntity.ok(response);
-
-        } catch (Exception e) {
-            logger.error("=== JD UPLOAD FAILED ===", e);
-            return ResponseEntity.status(500).body("JD Upload Failed: " + e.getMessage());
         }
+
+        // ✅ Safe unique filename
+        String uniqueName = UUID.randomUUID() + "_" + file.getOriginalFilename();
+
+        // ✅ CORRECT FILE PATH
+        File dest = new File(uploadFolder, uniqueName);
+        logger.info("Saving file at: {}", dest.getAbsolutePath());
+
+        // ✅ Save file
+        file.transferTo(dest);
+
+        // ✅ Parse SAME FILE
+        JobPosting extractedData = jobDescriptionParsingService.parseJobDescription(dest);
+
+        JobPosting jp = new JobPosting();
+        jp.setTitle(extractedData.getTitle() != null ? extractedData.getTitle() : file.getOriginalFilename());
+        jp.setDepartment(extractedData.getDepartment());
+        jp.setDescription(extractedData.getDescription());
+        jp.setMinExperienceYears(extractedData.getMinExperienceYears());
+        jp.setEducationLevel(extractedData.getEducationLevel());
+
+        // ✅ Save path for reuse
+        jp.setFileName(file.getOriginalFilename());
+        jp.setFilePath(dest.getAbsolutePath());
+        jp.setFileType(file.getContentType());
+
+        jp.setCreatedBy(user);
+        jp.setCreatedAt(LocalDateTime.now());
+
+        JobPosting savedJob = jobPostingRepository.save(jp);
+
+        Map<String, Object> response = new HashMap<>();
+        response.put("id", savedJob.getId());
+        response.put("message", "Upload successful");
+
+        return ResponseEntity.ok(response);
+
+    } catch (Exception e) {
+        logger.error("JD UPLOAD FAILED", e);
+        return ResponseEntity.status(500).body(e.getMessage());
     }
+}
 
 
 }
