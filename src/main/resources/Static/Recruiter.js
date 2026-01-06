@@ -726,63 +726,63 @@ window.analyzeCandidates = async function() {
 
 // Add this function to Recruiter.js
 
-window.finishAndAnalyze = async function() {
-    console.log("Starting Candidate Analysis...");
+// window.finishAndAnalyze = async function() {
+//     console.log("Starting Candidate Analysis...");
 
-    // 1. Retrieve active Job ID
-    let jobId = uploadedJobId || localStorage.getItem('activeJobId');
-    if (!jobId) {
-        alert("No active Job ID found. Please upload a Job Description first.");
-        return;
-    }
+//     // 1. Retrieve active Job ID
+//     let jobId = uploadedJobId || localStorage.getItem('activeJobId');
+//     if (!jobId) {
+//         alert("No active Job ID found. Please upload a Job Description first.");
+//         return;
+//     }
 
-    // 2. Auth Check
-    const token = localStorage.getItem('jwtToken');
-    if (!token) {
-        alert("Please login first.");
-        return;
-    }
+//     // 2. Auth Check
+//     const token = localStorage.getItem('jwtToken');
+//     if (!token) {
+//         alert("Please login first.");
+//         return;
+//     }
 
-    // 3. Button Feedback
-    const btn = document.getElementById('analyzeFinalBtn');
-    const originalContent = btn ? btn.innerHTML : 'Analyze Candidates';
-    if (btn) {
-        btn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Analyzing...';
-        btn.disabled = true;
-    }
+//     // 3. Button Feedback
+//     const btn = document.getElementById('analyzeFinalBtn');
+//     const originalContent = btn ? btn.innerHTML : 'Analyze Candidates';
+//     if (btn) {
+//         btn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Analyzing...';
+//         btn.disabled = true;
+//     }
 
-    try {
-        // 4. Construct URL (assuming CONFIG.API_BASE_URL is set correctly, e.g., 'http://localhost:8080/api/auth')
-        const baseUrl = CONFIG.API_BASE_URL.replace('/auth', ''); // Adjusts to root API path
-        const url = `${baseUrl}/score/${jobId}`;
-        console.log("Analysis URL:", url);
+//     try {
+//         // 4. Construct URL (assuming CONFIG.API_BASE_URL is set correctly, e.g., 'http://localhost:8080/api/auth')
+//         const baseUrl = CONFIG.API_BASE_URL.replace('/auth', ''); // Adjusts to root API path
+//         const url = `${baseUrl}/score/${jobId}`;
+//         console.log("Analysis URL:", url);
 
-        // 5. Make POST request to trigger scoring
-        const response = await fetch(url, {
-            method: 'POST',
-        });
+//         // 5. Make POST request to trigger scoring
+//         const response = await fetch(url, {
+//             method: 'POST',
+//         });
 
-        if (response.ok) {
-            const result = await response.json();
-            // Optional: Redirect to dashboard.html to view results
-            window.location.href = 'dashboard.html';
-        } else {
-            const errorText = await response.text();
-            throw new Error(errorText || `Failed with status ${response.status}`);
-        }
-    } catch (error) {
-        console.error("Analysis Error:", error);
-        alert(`Analysis Failed: ${error.message}`);
-    } finally {
-        // Reset Button
-        if (btn) {
-            btn.innerHTML = originalContent;
-            btn.disabled = false;
-        }
-    }
+//         if (response.ok) {
+//             const result = await response.json();
+//             // Optional: Redirect to dashboard.html to view results
+//             window.location.href = 'dashboard.html';
+//         } else {
+//             const errorText = await response.text();
+//             throw new Error(errorText || `Failed with status ${response.status}`);
+//         }
+//     } catch (error) {
+//         console.error("Analysis Error:", error);
+//         alert(`Analysis Failed: ${error.message}`);
+//     } finally {
+//         // Reset Button
+//         if (btn) {
+//             btn.innerHTML = originalContent;
+//             btn.disabled = false;
+//         }
+//     }
 
    
-};
+// };
 
 
 // Global state for session persistence
