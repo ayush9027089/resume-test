@@ -184,6 +184,7 @@ function handleLogout() {
     localStorage.removeItem('jwtToken');
     localStorage.removeItem('userName'); // Clean up name too
     localStorage.removeItem('activeJobId');
+    localStorage.removeItem('activeJobDept');
     localStorage.removeItem('jobId');
     localStorage.removeItem('role');
     localStorage.removeItem('userId');
