@@ -183,6 +183,10 @@ function addSkill(event) {
 function handleLogout() {
     localStorage.removeItem('jwtToken');
     localStorage.removeItem('userName'); // Clean up name too
+    localStorage.removeItem('activeJobId');
+    localStorage.removeItem('jobId');
+    localStorage.removeItem('role');
+    localStorage.removeItem('userId');
     
     // Simply redirect to home. 
     // nav.js will handle the UI state if they stay on a page that allows public access.
